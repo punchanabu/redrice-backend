@@ -7,7 +7,7 @@ import (
 )
 
 type Reservation struct {
-	ReservationID           uint      `gorm:"primaryKey" json:"id"`
+	ID           uint      `gorm:"primaryKey" json:"id"`
 	DateTime     time.Time `json:"dateTime"`
 	UserID       uint      `json:"userId"`
 	User         User      `gorm:"foreignKey:UserID" json:"user"`
