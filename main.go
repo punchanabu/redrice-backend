@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
+	"github.com/punchanabu/redrice-backend-go/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -20,5 +21,7 @@ func main() {
 		panic("Failed to connect to database!")
 	}
 
-	db.AutoMigrate()
+	// auto migration
+	db.AutoMigrate(&models.User{}, &models.Restaurant{}, &models.Reservation{})
+
 }
