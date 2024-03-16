@@ -5,10 +5,9 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/punchanabu/redrice-backend-go/models"
 	"github.com/punchanabu/redrice-backend-go/routers"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/gin-contrib/cors"
+	"github.com/punchanabu/redrice-backend-go/config"
 )
 
 func main() {
@@ -18,16 +17,16 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	db, err := gorm.Open(postgres.Open(os.Getenv("DB_CONN")), &gorm.Config{})
-	if err != nil {
-		panic("Failed to connect to database!")
+	db := config.SetupDBConnection()
+	if db == nil {
+		log.Fatal("Failed to connect to database!")
 	}
 
-	// auto migration
-	db.AutoMigrate(&models.User{}, &models.Restaurant{}, &models.Reservation{})
-
 	r := routers.UseRouter()
-	if err := r.Run(os.Getenv("PORT")); err != nil {
+
+	r.Use(cors.New(config.CORSConfig()))
+
+	if err := r.Run(":" + os.Getenv("PORT")); err != nil {
 		log.Fatal("Server failed to start!")
 	}
 
