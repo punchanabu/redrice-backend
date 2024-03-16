@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"github.com/punchanabu/redrice-backend-go/routers"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	db, err := gorm.Open(mysql.Open("DB_CONN"), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open("DB_CONN"), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database!")
 	}
