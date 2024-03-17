@@ -10,7 +10,7 @@ type Restaurant struct {
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
 	Description string `json:"description"`
-	gorm.Model
+	gorm.Model `json:"-" swaggerignore:"true"`
 }
 
 type RestaurantHandler struct {
