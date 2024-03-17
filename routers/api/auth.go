@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/middleware"
 	"github.com/punchanabu/redrice-backend-go/models"
@@ -9,6 +10,14 @@ import (
 
 var userHandler *models.UserHandler
 
+// @Summary Register a new user
+// @Accept json
+// @Produce json
+// @Param user body models.User true "User"
+// @Success 200 {object} string
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /register [post]
 func Register(c *gin.Context) {
 
 	var newUser models.User
@@ -25,6 +34,17 @@ func Register(c *gin.Context) {
 	}
 }
 
+// @Summary Login a user
+// @Description Login with email and password
+// @Accept  json
+// @Produce  json
+// @Param body body object true "Login Credentials" { "email": "string", "password": "string" }
+// @Success 200 {object} string "Login successful"
+// @Failure 400 {object} string "Invalid input format"
+// @Failure 401 {object} string "Authentication failed"
+// @Failure 404 {object} string "User not found"
+// @Failure 500 {object} string "Server error"
+// @Router /login [post]
 func Login(c *gin.Context) {
 
 	var loginDetails struct {
@@ -60,10 +80,10 @@ func Login(c *gin.Context) {
 	}
 
 	c.JSON(
-		http.StatusOK, 
+		http.StatusOK,
 		gin.H{
-			"token": token,
-			"message" : "Login successful",
+			"token":   token,
+			"message": "Login successful",
 		},
 	)
 }
