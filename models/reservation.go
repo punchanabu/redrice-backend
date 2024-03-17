@@ -24,7 +24,8 @@ func NewReservationHandler(db *gorm.DB) *ReservationHandler {
 	return &ReservationHandler{db}
 }
 
-func (h *ReservationHandler) CreateReservation(reservation *Reservation) error {
+func (h *ReservationHandler) CreateReservation(userID uint, reservation *Reservation) error {
+	reservation.UserID = userID
 	return h.db.Create(reservation).Error
 }
 
