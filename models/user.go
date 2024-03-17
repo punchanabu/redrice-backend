@@ -5,11 +5,45 @@ import (
 )
 
 type User struct {
-	ID    uint   `gorm:"primaryKey" json:"userId"`
+	ID        uint   `gorm:"primaryKey" json:"userId"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	Telephone string `json:"telephone"`
 	Role      string `json:"role"`
 	Password  string `json:"password"`
 	gorm.Model
+}
+
+type UserHandler struct {
+	db *gorm.DB
+}
+
+func NewUserHandler(db *gorm.DB) *UserHandler {
+	return &UserHandler{db}
+}
+
+func (h *UserHandler) CreateUser(user *User) error {
+	return h.db.Create(user).Error
+}
+
+func (h *UserHandler) GetUser(id uint) (*User, error) {
+	var user User
+	result := h.db.First(&user, id)
+	return &user, result.Error
+}
+
+func (h *UserHandler) GetUsers() ([]User, error) {
+	var users []User
+	result := h.db.Find(&users)
+	return users, result.Error
+}
+
+func (h *UserHandler) UpdateUser(id uint, user *User) error {
+	result := h.db.Model(&User{}).Where("id = ?", id).Updates(user)
+	return result.Error
+}
+
+func (h *UserHandler) DeleteUser(id uint) error {
+	result := h.db.Delete(&User{}, id)
+	return result.Error
 }

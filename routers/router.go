@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	docs "github.com/punchanabu/redrice-backend-go/docs"
 	"github.com/punchanabu/redrice-backend-go/routers/api"
-	"github.com/punchanabu/redrice-backend-go/routers/api/v1"
+	v1 "github.com/punchanabu/redrice-backend-go/routers/api/v1"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -18,7 +18,6 @@ func UseRouter() *gin.Engine {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.GET("/auth", api.Authenticate)
-
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use()
 	{
@@ -42,6 +41,5 @@ func UseRouter() *gin.Engine {
 		apiv1.GET("/reservations/:id", v1.GetReservation)
 		apiv1.PUT("/reservations/:id", v1.UpdateReservation)
 	}
-
 	return r
 }

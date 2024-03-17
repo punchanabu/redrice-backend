@@ -5,7 +5,7 @@ import (
 )
 
 func GetReservation(c *gin.Context) {
-
+	
 }
 func GetReservations(c *gin.Context) {}
 func CreateReservation(c *gin.Context) {
