@@ -13,7 +13,7 @@ func UseRouter() *gin.Engine {
 	r := gin.New()
 
 	docs.SwaggerInfo.Title = "RedRice API"
-	docs.SwaggerInfo.Description = "This is a server for managing restaurant with RedRice API."
+	docs.SwaggerInfo.Description = "This is a server for managing restaurant with RedRice API build with Go Gin and Gorm"
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.GET("/auth", api.Authenticate)
