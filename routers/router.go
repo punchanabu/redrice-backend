@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 	docs "github.com/punchanabu/redrice-backend-go/docs"
+	"github.com/punchanabu/redrice-backend-go/middleware"
 	"github.com/punchanabu/redrice-backend-go/routers/api"
 	v1 "github.com/punchanabu/redrice-backend-go/routers/api/v1"
 	swaggerfiles "github.com/swaggo/files"
@@ -22,7 +23,7 @@ func UseRouter() *gin.Engine {
 	r.POST("/login", api.Login)
 	r.POST("/register", api.Register)
 	apiv1 := r.Group("/api/v1")
-	apiv1.Use()
+	apiv1.Use(middleware.Auth())
 	{
 		// users
 		apiv1.GET("/users", v1.GetUsers)
