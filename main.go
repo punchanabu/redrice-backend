@@ -8,11 +8,12 @@ import (
 	"github.com/joho/godotenv"
 	config "github.com/punchanabu/redrice-backend-go/config"
 	routers "github.com/punchanabu/redrice-backend-go/routers"
+	"github.com/punchanabu/redrice-backend-go/routers/api"
 	v1 "github.com/punchanabu/redrice-backend-go/routers/api/v1"
 )
 
 func main() {
-	
+
 	// Load the env
 	err := godotenv.Load(".env")
 
@@ -29,6 +30,7 @@ func main() {
 	// Initialize necessary handlers
 	v1.InitializedUserHandler(db)
 	v1.InitializedRestaurantHandler(db)
+	api.InitializedAuthHandler(db)
 
 	// Initialize router
 	r := routers.UseRouter()

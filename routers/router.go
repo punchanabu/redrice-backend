@@ -19,9 +19,10 @@ func UseRouter() *gin.Engine {
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	r.POST("/login", api.Login)
-	r.POST("/register", api.Register)
 	apiv1 := r.Group("/api/v1")
+	auth := apiv1.Group("/auth")
+	auth.POST("/login", api.Login)
+	auth.POST("/register", api.Register)
 	apiv1.Use(middleware.Auth())
 	{
 		// for authorized user
@@ -33,6 +34,7 @@ func UseRouter() *gin.Engine {
 		apiv1.GET("/users/:id", v1.GetUser)
 		apiv1.POST("/reservations", v1.CreateReservation)
 
+		// for admin
 		adminRoutes := apiv1.Group("/")
 		adminRoutes.Use(middleware.Admin())
 		{

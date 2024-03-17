@@ -30,7 +30,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /login:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -66,12 +66,13 @@ paths:
           schema:
             type: string
       summary: Login a user
-  /register:
+  /auth/register:
     post:
       consumes:
       - application/json
       parameters:
-      - description: User
+      - description: 'Register {name: string, telephone: string, email: string, password:
+          string, role: string}'
         in: body
         name: user
         required: true

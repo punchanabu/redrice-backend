@@ -6,18 +6,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/middleware"
 	"github.com/punchanabu/redrice-backend-go/models"
+	"gorm.io/gorm"
 )
 
 var userHandler *models.UserHandler
 
+func InitializedAuthHandler(db *gorm.DB) {
+	userHandler = models.NewUserHandler(db)
+}
+
 // @Summary Register a new user
 // @Accept json
 // @Produce json
-// @Param user body models.User true "User"
+// @Param user body models.User true "Register {name: string, telephone: string, email: string, password: string, role: string}"
 // @Success 200 {object} string
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /register [post]
+// @Router /auth/register [post]
 func Register(c *gin.Context) {
 
 	var newUser models.User
@@ -44,7 +49,7 @@ func Register(c *gin.Context) {
 // @Failure 401 {object} string "Authentication failed"
 // @Failure 404 {object} string "User not found"
 // @Failure 500 {object} string "Server error"
-// @Router /login [post]
+// @Router /auth/login [post]
 func Login(c *gin.Context) {
 
 	var loginDetails struct {
@@ -58,6 +63,7 @@ func Login(c *gin.Context) {
 	}
 
 	user, err := userHandler.GetUserByEmail(loginDetails.Email)
+	
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
