@@ -5,13 +5,13 @@ import (
 )
 
 type User struct {
-	ID        uint   `gorm:"primaryKey" json:"userId"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Telephone string `json:"telephone"`
-	Role      string `json:"role"`
-	Password  string `json:"password"`
-	gorm.Model
+	ID         uint   `gorm:"primaryKey" json:"userId"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Telephone  string `json:"telephone"`
+	Role       string `json:"role"`
+	Password   string `json:"password"`
+	gorm.Model `json:"-" swaggerignore:"true"`
 }
 
 type UserHandler struct {
