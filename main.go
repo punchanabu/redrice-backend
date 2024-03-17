@@ -12,19 +12,25 @@ import (
 )
 
 func main() {
+	
+	// Load the env
 	err := godotenv.Load(".env")
 
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
+	// Setup database connection
 	db := config.SetupDBConnection()
 	if db == nil {
 		log.Fatal("Failed to connect to database!")
 	}
 
+	// Initialize necessary handlers
 	v1.InitializedUserHandler(db)
+	v1.InitializedRestaurantHandler(db)
 
+	// Initialize router
 	r := routers.UseRouter()
 	r.Use(cors.New(config.CORSConfig()))
 
