@@ -3,6 +3,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var RestaurantHandler *models.
 func GetRestaurant(c *gin.Context) {}
 func GetRestaurants(c *gin.Context) {}
 func CreateRestaurant(c *gin.Context) {}
