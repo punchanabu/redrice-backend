@@ -1,6 +1,7 @@
 package models
 
 import (
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +24,21 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(user *User) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hashedPassword)
 	return h.db.Create(user).Error
+}
+
+func (h *UserHandler) CheckPassword(email, password string) bool {
+	var user User
+	if err := h.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return false
+	}
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	return err == nil
 }
 
 func (h *UserHandler) GetUser(id uint) (*User, error) {
@@ -46,4 +61,10 @@ func (h *UserHandler) UpdateUser(id uint, user *User) error {
 func (h *UserHandler) DeleteUser(id uint) error {
 	result := h.db.Delete(&User{}, id)
 	return result.Error
+}
+
+func (h *UserHandler) GetUserByEmail(email string) (*User, error) {
+	var user User
+	result := h.db.Where("email = ?", email).First(&user)
+	return &user, result.Error
 }
