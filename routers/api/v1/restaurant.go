@@ -20,6 +20,7 @@ func InitializedRestaurantHandler(db *gorm.DB) {
 // @Success 200 {object} models.Restaurant
 // @Failure 400 {object} string
 // @Failure 404 {object} string
+// @Router /restaurants/{id} [get]
 func GetRestaurant(c *gin.Context) {
 	idString := c.Param("id")
 	idInt, err := strconv.Atoi(idString)
@@ -44,7 +45,7 @@ func GetRestaurant(c *gin.Context) {
 // @Success 200 {object} []models.Restaurant
 // @Failure 500 {object} string
 // @Router /restaurants [get]
-func GetRestaurants(c *gin.Context)   {
+func GetRestaurants(c *gin.Context) {
 	users, err := RestaurantHandler.GetRestaurants()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching restaurants!"})

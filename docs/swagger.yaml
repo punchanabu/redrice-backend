@@ -1,4 +1,17 @@
 definitions:
+  models.Restaurant:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      telephone:
+        type: string
+    type: object
   models.User:
     properties:
       email:
@@ -17,6 +30,122 @@ definitions:
 info:
   contact: {}
 paths:
+  /restaurants:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Restaurant'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a All Restaurant
+    post:
+      parameters:
+      - description: Restaurant
+        in: body
+        name: restaurant
+        required: true
+        schema:
+          $ref: '#/definitions/models.Restaurant'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Restaurant'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a Restaurant
+  /restaurants/{id}:
+    delete:
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Delete a Restaurant
+    get:
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Restaurant'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get a Single Restaurant
+    put:
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Restaurant
+        in: body
+        name: restaurant
+        required: true
+        schema:
+          $ref: '#/definitions/models.Restaurant'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Restaurant'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Update a Restaurant
   /users:
     get:
       produces:
