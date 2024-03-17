@@ -131,7 +131,7 @@ func UpdateReservation(c *gin.Context) {
 // @Success 204 {object} string
 // @Failure 400 {object} string
 // @Failure 404 {object} string
-// @Router /reservations/{id} [delete]						
+// @Router /reservations/{id} [delete]
 func DeleteReservation(c *gin.Context) {
 	idString := c.Param("id")
 	idInt, err := strconv.Atoi(idString)

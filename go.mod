@@ -1,6 +1,6 @@
 module github.com/punchanabu/redrice-backend-go
 
-go 1.21.4
+go 1.18
 
 require (
 	github.com/gin-contrib/cors v1.7.0

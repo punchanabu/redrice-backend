@@ -1,4 +1,19 @@
 definitions:
+  models.Reservation:
+    properties:
+      dateTime:
+        type: string
+      id:
+        type: integer
+      restaurant:
+        $ref: '#/definitions/models.Restaurant'
+      restaurantId:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+      userId:
+        type: integer
+    type: object
   models.Restaurant:
     properties:
       address:
@@ -94,6 +109,124 @@ paths:
           schema:
             type: string
       summary: Register a new user
+  /reservations:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Reservation'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a All Reservation
+    post:
+      parameters:
+      - description: Reservation
+        in: body
+        name: reservation
+        required: true
+        schema:
+          $ref: '#/definitions/models.Reservation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Reservation'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a Reservation
+  /reservations/{id}:
+    delete:
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Delete a Reservation
+    get:
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Reservation'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get a Single Reservation
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Reservation
+        in: body
+        name: reservation
+        required: true
+        schema:
+          $ref: '#/definitions/models.Reservation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Reservation'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Update a Reservation
   /restaurants:
     get:
       produces:
