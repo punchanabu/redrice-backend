@@ -13,7 +13,7 @@ type Reservation struct {
 	User         User      `gorm:"foreignKey:UserID" json:"user"`
 	RestaurantID uint      `json:"restaurantId"`
 	Restaurant   Restaurant `gorm:"foreignKey:RestaurantID" json:"restaurant"`
-	gorm.Model
+	gorm.Model `json:"-" swaggerignore:"true"`
 }
 
 type ReservationHandler struct {
