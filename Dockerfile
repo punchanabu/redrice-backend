@@ -16,6 +16,6 @@ RUN go build \
 ## Run
 FROM gcr.io/distroless/base-debian10
 COPY --from=build /go/bin/app /app
-EXPOSE 8081
+EXPOSE 8080
 USER nonroot:nonroot
 CMD ["/app"]
