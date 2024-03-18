@@ -6,7 +6,10 @@ COPY go.sum ./
 RUN go mod download
 COPY . ./
 ENV GOARCH=amd64
-RUN go build
+RUN go build \
+    -ldflags "-X main.buildcommit=$(git rev-parse --short HEAD) \
+    -X main.buildtime=$(date '+%Y-%m-%dT%H:%M:%S%Z:00')" \
+    -o /go/bin/app
 
 
 
