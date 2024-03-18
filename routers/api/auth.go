@@ -15,13 +15,27 @@ func InitializedAuthHandler(db *gorm.DB) {
 	userHandler = models.NewUserHandler(db)
 }
 
+type RegisterDetails struct {
+	Name      string `json:"name" example:"John Doe"`
+	Telephone string `json:"telephone" example:"123-456-7890"`
+	Email     string `json:"email" example:"john.doe@example.com"`
+	Password  string `json:"password" example:"securePassword123"`
+	Role      string `json:"role" example:"user"`
+}
+
+type RegisterResponse struct {
+	Message string `json:"message" example:"User registered successfully"`
+}
+
 // @Summary Register a new user
+// @Description Creates a new user account with the provided details. Upon successful creation, the user can log in with their credentials.
+// @Tags authentication
 // @Accept json
 // @Produce json
-// @Param user body models.User true "Register {name: string, telephone: string, email: string, password: string, role: string}"
-// @Success 200 {object} string
-// @Failure 400 {object} string
-// @Failure 500 {object} string
+// @Param user body RegisterDetails true "Register Credentials"
+// @Success 200 {object} RegisterResponse "Confirmation of successful registration."
+// @Failure 400 {object} ErrorResponse "The request was formatted incorrectly or missing required fields."
+// @Failure 500 {object} ErrorResponse "Internal server error, unable to process the request."
 // @Router /auth/register [post]
 func Register(c *gin.Context) {
 
@@ -39,31 +53,43 @@ func Register(c *gin.Context) {
 	}
 }
 
-// @Summary Login a user
-// @Description Login with email and password
-// @Accept  json
-// @Produce  json
-// @Param user body object true "Login Credentials" { "email": "string", "password": "string" }
-// @Success 200 {object} string "Login successful"
-// @Failure 400 {object} string "Invalid input format"
-// @Failure 401 {object} string "Authentication failed"
-// @Failure 404 {object} string "User not found"
-// @Failure 500 {object} string "Server error"
+type LoginDetails struct {
+	Email    string `json:"email" example:"user@example.com"`
+	Password string `json:"password" example:"password123"`
+}
+
+type LoginResponse struct {
+	Token   string `json:"token" example:""`
+	Message string `json:"message" example:"Login successful"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error" example:"Error message"`
+}
+
+// Login a user
+// @Summary User Login
+// @Description Authenticates a user by their email and password, returning a JWT token for authorized access to protected endpoints if successful.
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param credentials body LoginDetails true "Login Credentials"
+// @Success 200 {object} LoginResponse "An object containing a JWT token for authentication and a message indicating successful login."
+// @Failure 400 {object} ErrorResponse "The request was formatted incorrectly or missing required fields."
+// @Failure 401 {object} ErrorResponse "Authentication failed due to invalid login credentials."
+// @Failure 404 {object} ErrorResponse "The specified user was not found in the system."
+// @Failure 500 {object} ErrorResponse "Internal server error, unable to process the request."
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
 
-	var loginDetails struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
+	var loginDetails LoginDetails
 	if err := c.ShouldBindJSON(&loginDetails); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input format! please check the input format"})
 		return
 	}
 
 	user, err := userHandler.GetUserByEmail(loginDetails.Email)
-	
+
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return

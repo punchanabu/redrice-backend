@@ -10,6 +10,10 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func UseRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
@@ -17,6 +21,7 @@ func UseRouter() *gin.Engine {
 	docs.SwaggerInfo.Title = "RedRice API"
 	docs.SwaggerInfo.Description = "This is a server for managing restaurant with RedRice API build with Go Gin and Gorm"
 	docs.SwaggerInfo.BasePath = "/api/v1"
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	apiv1 := r.Group("/api/v1")

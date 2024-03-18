@@ -17,54 +17,57 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "post": {
-                "description": "Login with email and password",
+                "description": "Authenticates a user by their email and password, returning a JWT token for authorized access to protected endpoints if successful.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Login a user",
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "User Login",
                 "parameters": [
                     {
                         "description": "Login Credentials",
-                        "name": "body",
+                        "name": "credentials",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/api.LoginDetails"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Login successful",
+                        "description": "An object containing a JWT token for authentication and a message indicating successful login.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.LoginResponse"
                         }
                     },
                     "400": {
-                        "description": "Invalid input format",
+                        "description": "The request was formatted incorrectly or missing required fields.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Authentication failed",
+                        "description": "Authentication failed due to invalid login credentials.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "User not found",
+                        "description": "The specified user was not found in the system.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Server error",
+                        "description": "Internal server error, unable to process the request.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -72,41 +75,45 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
+                "description": "Creates a new user account with the provided details. Upon successful creation, the user can log in with their credentials.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "authentication"
+                ],
                 "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "Register {name: string, telephone: string, email: string, password: string, role: string}",
+                        "description": "Register Credentials",
                         "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/api.RegisterDetails"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Confirmation of successful registration.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.RegisterResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "The request was formatted incorrectly or missing required fields.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error, unable to process the request.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -114,13 +121,22 @@ const docTemplate = `{
         },
         "/reservations": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieves a list of all reservations in the system.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get a All Reservation",
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Get All Reservations",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "An array of reservation objects.",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -129,21 +145,33 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while fetching reservations.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Adds a new reservation to the system with the provided details. This endpoint requires authentication.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Create a Reservation",
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Create a New Reservation",
                 "parameters": [
                     {
-                        "description": "Reservation",
+                        "description": "Reservation Details",
                         "name": "reservation",
                         "in": "body",
                         "required": true,
@@ -154,21 +182,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "The created reservation's details, including its unique identifier.",
                         "schema": {
                             "$ref": "#/definitions/models.Reservation"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input format for reservation details.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while creating the reservation.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
@@ -176,13 +204,23 @@ const docTemplate = `{
         },
         "/reservations/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieves details of a single reservation by its unique identifier.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "reservations"
                 ],
                 "summary": "Get a Single Reservation",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "Reservation ID",
                         "name": "id",
                         "in": "path",
@@ -191,43 +229,53 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "The details of the reservation including ID, DateTime, UserID, User, RestaurantID, and Restaurant.",
                         "schema": {
                             "$ref": "#/definitions/models.Reservation"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid reservation ID format.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Reservation not found with the specified ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Updates the details of an existing reservation identified by its ID. This endpoint requires authentication.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "reservations"
+                ],
                 "summary": "Update a Reservation",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "Reservation ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Reservation",
+                        "description": "Updated Reservation Details",
                         "name": "reservation",
                         "in": "body",
                         "required": true,
@@ -238,33 +286,38 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "The updated reservation's details.",
                         "schema": {
                             "$ref": "#/definitions/models.Reservation"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input format for reservation details or invalid reservation ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Reservation not found with the specified ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "delete": {
+                "description": "Removes a reservation from the system by its unique identifier. This endpoint requires authentication.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "reservations"
                 ],
                 "summary": "Delete a Reservation",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "Reservation ID",
                         "name": "id",
                         "in": "path",
@@ -273,21 +326,18 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Reservation successfully deleted, no content to return."
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid reservation ID format.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Reservation not found with the specified ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
@@ -295,13 +345,22 @@ const docTemplate = `{
         },
         "/restaurants": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieves a list of all restaurants in the system.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get a All Restaurant",
+                "tags": [
+                    "restaurants"
+                ],
+                "summary": "Get All Restaurants",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "An array of restaurant objects.",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -310,21 +369,33 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while fetching restaurants.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Adds a new restaurant to the system with the provided details.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Create a Restaurant",
+                "tags": [
+                    "restaurants"
+                ],
+                "summary": "Create a New Restaurant",
                 "parameters": [
                     {
-                        "description": "Restaurant",
+                        "description": "Restaurant Registration Details",
                         "name": "restaurant",
                         "in": "body",
                         "required": true,
@@ -335,21 +406,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "The created restaurant's details, including its unique identifier.",
                         "schema": {
                             "$ref": "#/definitions/models.Restaurant"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input format for restaurant details.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while creating the restaurant.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
@@ -357,13 +428,23 @@ const docTemplate = `{
         },
         "/restaurants/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieves details of a single restaurant by its unique identifier.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "restaurants"
                 ],
                 "summary": "Get a Single Restaurant",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "Restaurant ID",
                         "name": "id",
                         "in": "path",
@@ -372,40 +453,53 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "The details of the restaurant including ID, name, location, and other relevant information.",
                         "schema": {
                             "$ref": "#/definitions/models.Restaurant"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid restaurant ID format.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Restaurant not found with the specified ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Updates the details of an existing restaurant identified by its ID.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "restaurants"
                 ],
                 "summary": "Update a Restaurant",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "Restaurant ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Restaurant",
+                        "description": "Updated Restaurant Details",
                         "name": "restaurant",
                         "in": "body",
                         "required": true,
@@ -416,33 +510,43 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "The updated restaurant's details.",
                         "schema": {
                             "$ref": "#/definitions/models.Restaurant"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input format for restaurant details or invalid restaurant ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Restaurant not found with the specified ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Removes a restaurant from the system by its unique identifier.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "restaurants"
                 ],
                 "summary": "Delete a Restaurant",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "Restaurant ID",
                         "name": "id",
                         "in": "path",
@@ -451,21 +555,18 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Restaurant successfully deleted, no content to return."
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid restaurant ID format.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Restaurant not found with the specified ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
@@ -473,13 +574,22 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieves a list of all users in the system.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get a All User",
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get All Users",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "An array of user objects.",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -488,24 +598,33 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while fetching users.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Adds a new user to the system with the provided details.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Create a User",
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create a New User",
                 "parameters": [
                     {
-                        "description": "User",
+                        "description": "User Registration Details",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -516,21 +635,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "The created user's details, including their unique identifier.",
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input format for user details.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while creating the user.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
@@ -538,13 +657,23 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieves details of a single user by their unique identifier.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "user"
                 ],
                 "summary": "Get a Single User",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -553,43 +682,53 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "The details of the user including ID, name, email, telephone, and role.",
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid user ID format.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "User not found with the specified ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Updates the details of an existing user identified by their ID.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "user"
+                ],
                 "summary": "Update a User",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "User",
+                        "description": "Updated User Details",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -600,33 +739,43 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "The updated user's details.",
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input format for user details or invalid user ID.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while updating the user.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Removes a user from the system by their unique identifier.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "user"
                 ],
                 "summary": "Delete a User",
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -635,12 +784,18 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content"
+                        "description": "User successfully deleted, no content to return."
+                    },
+                    "400": {
+                        "description": "Invalid user ID format.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error while deleting the user.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/v1.ErrorResponse"
                         }
                     }
                 }
@@ -648,6 +803,75 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Error message"
+                }
+            }
+        },
+        "api.LoginDetails": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                }
+            }
+        },
+        "api.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Login successful"
+                },
+                "token": {
+                    "type": "string",
+                    "example": ""
+                }
+            }
+        },
+        "api.RegisterDetails": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "securePassword123"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "user"
+                },
+                "telephone": {
+                    "type": "string",
+                    "example": "123-456-7890"
+                }
+            }
+        },
+        "api.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "User registered successfully"
+                }
+            }
+        },
         "models.Reservation": {
             "type": "object",
             "properties": {
@@ -713,6 +937,23 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "v1.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Description of the error occurred"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

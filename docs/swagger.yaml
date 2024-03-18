@@ -1,4 +1,52 @@
 definitions:
+  api.ErrorResponse:
+    properties:
+      error:
+        example: Error message
+        type: string
+    type: object
+  api.LoginDetails:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        type: string
+    type: object
+  api.LoginResponse:
+    properties:
+      message:
+        example: Login successful
+        type: string
+      token:
+        example: ""
+        type: string
+    type: object
+  api.RegisterDetails:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: securePassword123
+        type: string
+      role:
+        example: user
+        type: string
+      telephone:
+        example: 123-456-7890
+        type: string
+    type: object
+  api.RegisterResponse:
+    properties:
+      message:
+        example: User registered successfully
+        type: string
+    type: object
   models.Reservation:
     properties:
       dateTime:
@@ -42,6 +90,12 @@ definitions:
       userId:
         type: integer
     type: object
+  v1.ErrorResponse:
+    properties:
+      error:
+        example: Description of the error occurred
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -49,85 +103,101 @@ paths:
     post:
       consumes:
       - application/json
-      description: Login with email and password
+      description: Authenticates a user by their email and password, returning a JWT
+        token for authorized access to protected endpoints if successful.
       parameters:
       - description: Login Credentials
         in: body
-        name: body
+        name: credentials
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/api.LoginDetails'
       produces:
       - application/json
       responses:
         "200":
-          description: Login successful
+          description: An object containing a JWT token for authentication and a message
+            indicating successful login.
           schema:
-            type: string
+            $ref: '#/definitions/api.LoginResponse'
         "400":
-          description: Invalid input format
+          description: The request was formatted incorrectly or missing required fields.
           schema:
-            type: string
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
-          description: Authentication failed
+          description: Authentication failed due to invalid login credentials.
           schema:
-            type: string
+            $ref: '#/definitions/api.ErrorResponse'
         "404":
-          description: User not found
+          description: The specified user was not found in the system.
           schema:
-            type: string
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
-          description: Server error
+          description: Internal server error, unable to process the request.
           schema:
-            type: string
-      summary: Login a user
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: User Login
+      tags:
+      - authentication
   /auth/register:
     post:
       consumes:
       - application/json
+      description: Creates a new user account with the provided details. Upon successful
+        creation, the user can log in with their credentials.
       parameters:
-      - description: 'Register {name: string, telephone: string, email: string, password:
-          string, role: string}'
+      - description: Register Credentials
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/api.RegisterDetails'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Confirmation of successful registration.
           schema:
-            type: string
+            $ref: '#/definitions/api.RegisterResponse'
         "400":
-          description: Bad Request
+          description: The request was formatted incorrectly or missing required fields.
           schema:
-            type: string
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error, unable to process the request.
           schema:
-            type: string
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Register a new user
+      tags:
+      - authentication
   /reservations:
     get:
+      description: Retrieves a list of all reservations in the system.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: An array of reservation objects.
           schema:
             items:
               $ref: '#/definitions/models.Reservation'
             type: array
         "500":
-          description: Internal Server Error
+          description: Internal server error while fetching reservations.
           schema:
-            type: string
-      summary: Get a All Reservation
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get All Reservations
+      tags:
+      - reservations
     post:
+      consumes:
+      - application/json
+      description: Adds a new reservation to the system with the provided details.
+        This endpoint requires authentication.
       parameters:
-      - description: Reservation
+      - description: Reservation Details
         in: body
         name: reservation
         required: true
@@ -137,22 +207,29 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: The created reservation's details, including its unique identifier.
           schema:
             $ref: '#/definitions/models.Reservation'
         "400":
-          description: Bad Request
+          description: Invalid input format for reservation details.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error while creating the reservation.
           schema:
-            type: string
-      summary: Create a Reservation
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a New Reservation
+      tags:
+      - reservations
   /reservations/{id}:
     delete:
+      description: Removes a reservation from the system by its unique identifier.
+        This endpoint requires authentication.
       parameters:
       - description: Reservation ID
+        format: int64
         in: path
         name: id
         required: true
@@ -161,21 +238,23 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
-          schema:
-            type: string
+          description: Reservation successfully deleted, no content to return.
         "400":
-          description: Bad Request
+          description: Invalid reservation ID format.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "404":
-          description: Not Found
+          description: Reservation not found with the specified ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
       summary: Delete a Reservation
+      tags:
+      - reservations
     get:
+      description: Retrieves details of a single reservation by its unique identifier.
       parameters:
       - description: Reservation ID
+        format: int64
         in: path
         name: id
         required: true
@@ -184,28 +263,36 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: The details of the reservation including ID, DateTime, UserID,
+            User, RestaurantID, and Restaurant.
           schema:
             $ref: '#/definitions/models.Reservation'
         "400":
-          description: Bad Request
+          description: Invalid reservation ID format.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "404":
-          description: Not Found
+          description: Reservation not found with the specified ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Get a Single Reservation
+      tags:
+      - reservations
     put:
       consumes:
       - application/json
+      description: Updates the details of an existing reservation identified by its
+        ID. This endpoint requires authentication.
       parameters:
       - description: Reservation ID
+        format: int64
         in: path
         name: id
         required: true
         type: integer
-      - description: Reservation
+      - description: Updated Reservation Details
         in: body
         name: reservation
         required: true
@@ -215,37 +302,50 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: The updated reservation's details.
           schema:
             $ref: '#/definitions/models.Reservation'
         "400":
-          description: Bad Request
+          description: Invalid input format for reservation details or invalid reservation
+            ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "404":
-          description: Not Found
+          description: Reservation not found with the specified ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Update a Reservation
+      tags:
+      - reservations
   /restaurants:
     get:
+      description: Retrieves a list of all restaurants in the system.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: An array of restaurant objects.
           schema:
             items:
               $ref: '#/definitions/models.Restaurant'
             type: array
         "500":
-          description: Internal Server Error
+          description: Internal server error while fetching restaurants.
           schema:
-            type: string
-      summary: Get a All Restaurant
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get All Restaurants
+      tags:
+      - restaurants
     post:
+      consumes:
+      - application/json
+      description: Adds a new restaurant to the system with the provided details.
       parameters:
-      - description: Restaurant
+      - description: Restaurant Registration Details
         in: body
         name: restaurant
         required: true
@@ -255,22 +355,28 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: The created restaurant's details, including its unique identifier.
           schema:
             $ref: '#/definitions/models.Restaurant'
         "400":
-          description: Bad Request
+          description: Invalid input format for restaurant details.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error while creating the restaurant.
           schema:
-            type: string
-      summary: Create a Restaurant
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a New Restaurant
+      tags:
+      - restaurants
   /restaurants/{id}:
     delete:
+      description: Removes a restaurant from the system by its unique identifier.
       parameters:
       - description: Restaurant ID
+        format: int64
         in: path
         name: id
         required: true
@@ -279,21 +385,25 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
-          schema:
-            type: string
+          description: Restaurant successfully deleted, no content to return.
         "400":
-          description: Bad Request
+          description: Invalid restaurant ID format.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "404":
-          description: Not Found
+          description: Restaurant not found with the specified ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Delete a Restaurant
+      tags:
+      - restaurants
     get:
+      description: Retrieves details of a single restaurant by its unique identifier.
       parameters:
       - description: Restaurant ID
+        format: int64
         in: path
         name: id
         required: true
@@ -302,26 +412,36 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: The details of the restaurant including ID, name, location,
+            and other relevant information.
           schema:
             $ref: '#/definitions/models.Restaurant'
         "400":
-          description: Bad Request
+          description: Invalid restaurant ID format.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "404":
-          description: Not Found
+          description: Restaurant not found with the specified ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Get a Single Restaurant
+      tags:
+      - restaurants
     put:
+      consumes:
+      - application/json
+      description: Updates the details of an existing restaurant identified by its
+        ID.
       parameters:
       - description: Restaurant ID
+        format: int64
         in: path
         name: id
         required: true
         type: integer
-      - description: Restaurant
+      - description: Updated Restaurant Details
         in: body
         name: restaurant
         required: true
@@ -331,39 +451,50 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: The updated restaurant's details.
           schema:
             $ref: '#/definitions/models.Restaurant'
         "400":
-          description: Bad Request
+          description: Invalid input format for restaurant details or invalid restaurant
+            ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "404":
-          description: Not Found
+          description: Restaurant not found with the specified ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Update a Restaurant
+      tags:
+      - restaurants
   /users:
     get:
+      description: Retrieves a list of all users in the system.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: An array of user objects.
           schema:
             items:
               $ref: '#/definitions/models.User'
             type: array
         "500":
-          description: Internal Server Error
+          description: Internal server error while fetching users.
           schema:
-            type: string
-      summary: Get a All User
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get All Users
+      tags:
+      - user
     post:
       consumes:
       - application/json
+      description: Adds a new user to the system with the provided details.
       parameters:
-      - description: User
+      - description: User Registration Details
         in: body
         name: user
         required: true
@@ -373,22 +504,28 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: The created user's details, including their unique identifier.
           schema:
             $ref: '#/definitions/models.User'
         "400":
-          description: Bad Request
+          description: Invalid input format for user details.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error while creating the user.
           schema:
-            type: string
-      summary: Create a User
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a New User
+      tags:
+      - user
   /users/{id}:
     delete:
+      description: Removes a user from the system by their unique identifier.
       parameters:
       - description: User ID
+        format: int64
         in: path
         name: id
         required: true
@@ -397,15 +534,25 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
-        "500":
-          description: Internal Server Error
+          description: User successfully deleted, no content to return.
+        "400":
+          description: Invalid user ID format.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal server error while deleting the user.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Delete a User
+      tags:
+      - user
     get:
+      description: Retrieves details of a single user by their unique identifier.
       parameters:
       - description: User ID
+        format: int64
         in: path
         name: id
         required: true
@@ -414,28 +561,35 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: The details of the user including ID, name, email, telephone,
+            and role.
           schema:
             $ref: '#/definitions/models.User'
         "400":
-          description: Bad Request
+          description: Invalid user ID format.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "404":
-          description: Not Found
+          description: User not found with the specified ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Get a Single User
+      tags:
+      - user
     put:
       consumes:
       - application/json
+      description: Updates the details of an existing user identified by their ID.
       parameters:
       - description: User ID
+        format: int64
         in: path
         name: id
         required: true
         type: integer
-      - description: User
+      - description: Updated User Details
         in: body
         name: user
         required: true
@@ -445,16 +599,26 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: The updated user's details.
           schema:
             $ref: '#/definitions/models.User'
         "400":
-          description: Bad Request
+          description: Invalid input format for user details or invalid user ID.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error while updating the user.
           schema:
-            type: string
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Update a User
+      tags:
+      - user
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

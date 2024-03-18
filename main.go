@@ -12,6 +12,7 @@ import (
 	v1 "github.com/punchanabu/redrice-backend-go/routers/api/v1"
 )
 
+
 func main() {
 
 	// Load the env

@@ -11,16 +11,23 @@ import (
 
 var userHandler *models.UserHandler
 
+type ErrorResponse struct {
+	Error string `json:"error" example:"Description of the error occurred"`
+}
+
 func InitializedUserHandler(db *gorm.DB) {
 	userHandler = models.NewUserHandler(db)
 }
 
 // @Summary Get a Single User
+// @Description Retrieves details of a single user by their unique identifier.
+// @Tags user
 // @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {object} models.User
-// @Failure 400 {object} string
-// @Failure 404 {object} string
+// @Param id path int true "User ID" Format(int64)
+// @Security Bearer
+// @Success 200 {object} models.User "The details of the user including ID, name, email, telephone, and role."
+// @Failure 400 {object} ErrorResponse "Invalid user ID format."
+// @Failure 404 {object} ErrorResponse "User not found with the specified ID."
 // @Router /users/{id} [get]
 func GetUser(c *gin.Context) {
 	idString := c.Param("id")
@@ -43,10 +50,13 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// @Summary Get a All User
+// @Summary Get All Users
+// @Description Retrieves a list of all users in the system.
+// @Tags user
 // @Produce json
-// @Success 200 {object} []models.User
-// @Failure 500 {object} string
+// @Security Bearer
+// @Success 200 {array} models.User "An array of user objects."
+// @Failure 500 {object} ErrorResponse "Internal server error while fetching users."
 // @Router /users [get]
 func GetUsers(c *gin.Context) {
 	users, err := userHandler.GetUsers()
@@ -59,13 +69,16 @@ func GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// @Summary Create a User
+// @Summary Create a New User
+// @Description Adds a new user to the system with the provided details.
+// @Tags user
 // @Accept json
 // @Produce json
-// @Param user body models.User true "User"
-// @Success 201 {object} models.User
-// @Failure 400 {object} string
-// @Failure 500 {object} string
+// @Param user body models.User true "User Registration Details"
+// @Security Bearer
+// @Success 201 {object} models.User "The created user's details, including their unique identifier."
+// @Failure 400 {object} ErrorResponse "Invalid input format for user details."
+// @Failure 500 {object} ErrorResponse "Internal server error while creating the user."
 // @Router /users [post]
 func CreateUser(c *gin.Context) {
 	var user models.User
@@ -84,13 +97,16 @@ func CreateUser(c *gin.Context) {
 }
 
 // @Summary Update a User
+// @Description Updates the details of an existing user identified by their ID.
+// @Tags user
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
-// @Param user body models.User true "User"
-// @Success 200 {object} models.User
-// @Failure 400 {object} string
-// @Failure 500 {object} string
+// @Param id path int true "User ID" Format(int64)
+// @Param user body models.User true "Updated User Details"
+// @Security Bearer
+// @Success 200 {object} models.User "The updated user's details."
+// @Failure 400 {object} ErrorResponse "Invalid input format for user details or invalid user ID."
+// @Failure 500 {object} ErrorResponse "Internal server error while updating the user."
 // @Router /users/{id} [put]
 func UpdateUser(c *gin.Context) {
 	idString := c.Param("id")
@@ -118,10 +134,14 @@ func UpdateUser(c *gin.Context) {
 }
 
 // @Summary Delete a User
+// @Description Removes a user from the system by their unique identifier.
+// @Tags user
 // @Produce json
-// @Param id path int true "User ID"
-// @Success 204
-// @Failure 500 {object} string
+// @Param id path int true "User ID" Format(int64)
+// @Security Bearer
+// @Success 204 "User successfully deleted, no content to return."
+// @Failure 400 {object} ErrorResponse "Invalid user ID format."
+// @Failure 500 {object} ErrorResponse "Internal server error while deleting the user."
 // @Router /users/{id} [delete]
 func DeleteUser(c *gin.Context) {
 	idString := c.Param("id")
