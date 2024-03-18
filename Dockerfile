@@ -1,5 +1,5 @@
 ## build
-FROM golang:1.18-buster AS build
+FROM golang:1.21-buster AS build
 WORKDIR /app
 COPY go.mod ./
 COPY go.sum ./
