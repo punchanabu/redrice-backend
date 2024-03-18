@@ -160,3 +160,21 @@ func DeleteUser(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+// @Summary Get my profile
+// @Description Retrieves the details of the currently authenticated user.
+// @Tags user
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} models.User "The details of the currently authenticated user."
+// @Failure 404 {object} ErrorResponse "User not found."
+// @Router /me [get]
+func GetMe(c *gin.Context) {
+	id, _ := c.Get("userId")
+	user, err := userHandler.GetUser(id.(uint))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}

@@ -51,6 +51,20 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
 		return
 	}
+
+	token, err := middleware.GenerateToken(newUser.Email, newUser.ID, newUser.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating token"})
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"message": "User registered successfully",
+			"token" : token,
+		},
+	)
 }
 
 type LoginDetails struct {
