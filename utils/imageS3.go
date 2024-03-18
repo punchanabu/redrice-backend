@@ -4,51 +4,56 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
+	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-var s3Client *s3.Client
+var minioClient *minio.Client
 
 func init() {
-	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-		return aws.Endpoint{
-			PartitionID:   "aws",
-			URL:           os.Getenv("BUCKET_ENDPOINT"),
-			SigningRegion: os.Getenv("BUCKET_REGION"),
-		}, nil
-	})
-
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion(os.Getenv("BUCKET_REGION")),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(os.Getenv("BUCKET_ACCESS_KEY"), os.Getenv("BUCKET_SECRET_ACCESS_KEY"), "")),
-		config.WithEndpointResolverWithOptions(customResolver),
-	)
-	if err != nil {
-		fmt.Printf("Failed to load AWS config: %s\n", err)
-		os.Exit(1)
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("No .env file found")
 	}
 
-	s3Client = s3.NewFromConfig(cfg)
+	endpoint := os.Getenv("BUCKET_ENDPOINT")
+	accessKeyID := os.Getenv("BUCKET_ACCESS_KEY")
+	secretAccessKey := os.Getenv("BUCKET_SECRET_ACCESS_KEY")
+	useSSL := true
+
+	var err error
+	minioClient, err = minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: useSSL,
+	})
+	if err != nil {
+		fmt.Printf("Failed to initialize MinIO client: %s\n", err)
+		os.Exit(1)
+	}
 }
 
 func UploadImageToS3(bucketName string, file io.Reader, fileName string) (string, error) {
-	filename := uuid.New().String() + filepath.Ext(fileName)
 
-	_, err := s3Client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(filename),
-		Body:   file,
-	})
+	key := filepath.Join("images", uuid.New().String()+filepath.Ext(fileName)) 
+
+	_, err := minioClient.PutObject(context.Background(), bucketName, key, file, -1, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
+		log.Printf("Failed to upload to S3: %v", err)
 		return "", err
 	}
 
-	return "https://" + bucketName + ".s3.amazonaws.com/" + filename, nil
+	presignedURL, err := minioClient.PresignedGetObject(context.Background(), bucketName, key, 24*time.Hour, nil)
+	if err != nil {
+		log.Printf("Failed to generate presigned URL: %v", err)
+		return "", err
+	}
+
+	log.Printf("Successfully uploaded %s and generated presigned URL\n", key)
+	return presignedURL.String(), nil
 }

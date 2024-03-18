@@ -95,24 +95,24 @@ func CreateRestaurant(c *gin.Context) {
 	defer file.Close()
 
 	imageUrl, err := utils.UploadImageToS3("redrice", file, header.Filename)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error uploading image!"})
-		return 
+		return
 	}
 
-	restaurant := models.Restaurant {
-		Name: name,
-		Address: address,
-		Telephone: telephone,
+	restaurant := models.Restaurant{
+		Name:        name,
+		Address:     address,
+		Telephone:   telephone,
 		Description: description,
-		ImageURL: imageUrl,
+		ImageURL:    imageUrl,
 	}
 
 	if err := RestaurantHandler.CreateRestaurant(&restaurant); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating restaurant!"})
 		return
 	}
-
 
 	c.JSON(http.StatusCreated, restaurant)
 }
