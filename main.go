@@ -31,7 +31,8 @@ func main() {
 	v1.InitializedUserHandler(db)
 	v1.InitializedRestaurantHandler(db)
 	api.InitializedAuthHandler(db)
-
+	v1.InitializedReservationHandler(db)
+	
 	// Initialize router
 	r := routers.UseRouter()
 	r.Use(cors.New(config.CORSConfig()))

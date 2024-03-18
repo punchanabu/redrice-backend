@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -66,5 +68,8 @@ func (h *UserHandler) DeleteUser(id uint) error {
 func (h *UserHandler) GetUserByEmail(email string) (*User, error) {
 	var user User
 	result := h.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user not found")
+	}
 	return &user, result.Error
 }

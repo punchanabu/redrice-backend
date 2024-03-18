@@ -43,7 +43,7 @@ func Register(c *gin.Context) {
 // @Description Login with email and password
 // @Accept  json
 // @Produce  json
-// @Param body body object true "Login Credentials" { "email": "string", "password": "string" }
+// @Param user body object true "Login Credentials" { "email": "string", "password": "string" }
 // @Success 200 {object} string "Login successful"
 // @Failure 400 {object} string "Invalid input format"
 // @Failure 401 {object} string "Authentication failed"
@@ -74,8 +74,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if !userHandler.CheckPassword(user.Password, loginDetails.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
+	if !userHandler.CheckPassword(user.Email, loginDetails.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Password is incorrect!"})
 		return
 	}
 
