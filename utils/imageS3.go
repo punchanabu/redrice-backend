@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime"
+	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -40,15 +42,21 @@ func init() {
 
 func UploadImageToS3(bucketName string, file io.Reader, fileName string) (string, error) {
 
-	key := filepath.Join("images", uuid.New().String()+filepath.Ext(fileName)) 
-
-	_, err := minioClient.PutObject(context.Background(), bucketName, key, file, -1, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	key := filepath.Join("images", uuid.New().String()+filepath.Ext(fileName))
+	contentType := mime.TypeByExtension(filepath.Ext(fileName))
+	if contentType == "" {
+		contentType = "image/jpeg"
+	}
+	_, err := minioClient.PutObject(context.Background(), bucketName, key, file, -1, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		log.Printf("Failed to upload to S3: %v", err)
 		return "", err
 	}
 
-	presignedURL, err := minioClient.PresignedGetObject(context.Background(), bucketName, key, 24*time.Hour, nil)
+	reqParams := make(url.Values)
+	reqParams.Set("response-content-disposition", "inline")
+
+	presignedURL, err := minioClient.PresignedGetObject(context.Background(), bucketName, key, 24*time.Hour, reqParams)
 	if err != nil {
 		log.Printf("Failed to generate presigned URL: %v", err)
 		return "", err
