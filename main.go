@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
@@ -11,7 +17,6 @@ import (
 	"github.com/punchanabu/redrice-backend-go/routers/api"
 	v1 "github.com/punchanabu/redrice-backend-go/routers/api/v1"
 )
-
 
 func main() {
 
@@ -33,13 +38,35 @@ func main() {
 	v1.InitializedRestaurantHandler(db)
 	api.InitializedAuthHandler(db)
 	v1.InitializedReservationHandler(db)
-	
+
 	// Initialize router
 	r := routers.UseRouter()
 	r.Use(cors.New(config.CORSConfig()))
 
-	if err := r.Run(":" + os.Getenv("PORT")); err != nil {
-		log.Fatal("Server failed to start!")
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	server := &http.Server{
+		Addr:    ":" + os.Getenv("PORT"),
+		Handler: r,
+	}
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	<-ctx.Done()
+	stop()
+
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	fmt.Println("Gracefully shutting down server..., press Ctrl+C again to force shutdown")
+	defer cancel()
+
+	if err := server.Shutdown(timeoutCtx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
 	}
 
 }
