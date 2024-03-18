@@ -119,6 +119,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/me": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieves the details of the currently authenticated user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get my profile",
+                "responses": {
+                    "200": {
+                        "description": "The details of the currently authenticated user.",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/reservations": {
             "get": {
                 "security": [
@@ -907,6 +938,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "imageUrl": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -921,6 +955,9 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -932,9 +969,6 @@ const docTemplate = `{
                 },
                 "telephone": {
                     "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
                 }
             }
         },
@@ -946,14 +980,6 @@ const docTemplate = `{
                     "example": "Description of the error occurred"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "Bearer": {
-            "description": "Type \"Bearer\" followed by a space and JWT token.",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }`
