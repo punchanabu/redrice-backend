@@ -3,6 +3,7 @@ package v1
 import (
 	"net/http"
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"gorm.io/gorm"
@@ -78,7 +79,7 @@ func CreateReservation(c *gin.Context) {
 		return
 	}
 
-	userID, exist := c.Get("user_id")
+	userID, exist := c.Get("id")
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return

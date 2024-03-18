@@ -7,13 +7,13 @@ import (
 )
 
 type Reservation struct {
-	ID           uint      `gorm:"primaryKey" json:"id"`
-	DateTime     time.Time `json:"dateTime"`
-	UserID       uint      `json:"userId"`
-	User         User      `gorm:"foreignKey:UserID" json:"user"`
-	RestaurantID uint      `json:"restaurantId"`
+	ID           uint       `gorm:"primaryKey"`
+	DateTime     time.Time  `json:"dateTime"`
+	UserID       uint       `json:"userId"`
+	User         User       `gorm:"foreignKey:UserID" json:"user"`
+	RestaurantID uint       `json:"restaurantId"`
 	Restaurant   Restaurant `gorm:"foreignKey:RestaurantID" json:"restaurant"`
-	gorm.Model `json:"-" swaggerignore:"true"`
+	gorm.Model   `json:"-" swaggerignore:"true"`
 }
 
 type ReservationHandler struct {
@@ -26,7 +26,12 @@ func NewReservationHandler(db *gorm.DB) *ReservationHandler {
 
 func (h *ReservationHandler) CreateReservation(userID uint, reservation *Reservation) error {
 	reservation.UserID = userID
-	return h.db.Create(reservation).Error
+
+	if err := h.db.Create(reservation).Error; err != nil {
+		return err
+	}
+
+	return h.db.Preload("User").Preload("Restaurant").First(reservation, reservation.ID).Error
 }
 
 func (h *ReservationHandler) GetReservation(id uint) (*Reservation, error) {
