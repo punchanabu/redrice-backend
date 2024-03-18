@@ -4,11 +4,28 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := c.GetHeader("Authorization")
+
+		authHeader := c.GetHeader("Authorization")
+
+		if authHeader == "" {
+		    c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+		    c.Abort()
+		    return
+		}
+		
+		parts := strings.SplitN(authHeader, " ", 2)
+		if !(len(parts) == 2 && parts[0] == "Bearer") {
+		    c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header format must be Bearer <token>"})
+		    c.Abort()
+		    return
+		}
+
+		tokenString := parts[1]
 
 		claims, err := ValidateToken(tokenString)
 		if err != nil {
@@ -25,7 +42,22 @@ func Auth() gin.HandlerFunc {
 
 func Admin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := c.GetHeader("Authorization")
+		authHeader := c.GetHeader("Authorization")
+
+		if authHeader == "" {
+		    c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+		    c.Abort()
+		    return
+		}
+		
+		parts := strings.SplitN(authHeader, " ", 2)
+		if !(len(parts) == 2 && parts[0] == "Bearer") {
+		    c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header format must be Bearer <token>"})
+		    c.Abort()
+		    return
+		}
+
+		tokenString := parts[1]
 
 		claims, err := ValidateToken(tokenString)
 		if err != nil {

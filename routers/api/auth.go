@@ -62,7 +62,7 @@ func Register(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"message": "User registered successfully",
-			"token" : token,
+			"token":   token,
 		},
 	)
 }

@@ -3,7 +3,6 @@ package v1
 import (
 	"net/http"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"gorm.io/gorm"
@@ -170,7 +169,7 @@ func DeleteUser(c *gin.Context) {
 // @Failure 404 {object} ErrorResponse "User not found."
 // @Router /me [get]
 func GetMe(c *gin.Context) {
-	id, _ := c.Get("userId")
+	id, _ := c.Get("id")
 	user, err := userHandler.GetUser(id.(uint))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})

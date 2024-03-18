@@ -3,7 +3,6 @@ package v1
 import (
 	"net/http"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"gorm.io/gorm"

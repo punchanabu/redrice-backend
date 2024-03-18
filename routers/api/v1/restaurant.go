@@ -1,11 +1,11 @@
 package v1
 
 import (
+	"net/http"
+	"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
 )
 
 var RestaurantHandler *models.RestaurantHandler
@@ -151,5 +151,5 @@ func DeleteRestaurant(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusNoContent, gin.H{"status": "deleted"})
+	c.JSON(http.StatusOK, gin.H{"status": "deleted", "message": "Restaurant deleted successfully!"})
 }
