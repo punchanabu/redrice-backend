@@ -10,7 +10,8 @@ type Restaurant struct {
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
 	Description string `json:"description"`
-	gorm.Model `json:"-" swaggerignore:"true"`
+	ImageURL    string `json:"imageUrl"`
+	gorm.Model  `json:"-" swaggerignore:"true"`
 }
 
 type RestaurantHandler struct {
@@ -46,4 +47,3 @@ func (h *RestaurantHandler) DeleteRestaurant(id uint) error {
 	result := h.db.Delete(&Restaurant{}, id)
 	return result.Error
 }
-

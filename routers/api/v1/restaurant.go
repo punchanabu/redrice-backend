@@ -3,8 +3,10 @@ package v1
 import (
 	"net/http"
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/models"
+	"github.com/punchanabu/redrice-backend-go/utils"
 	"gorm.io/gorm"
 )
 
@@ -72,16 +74,45 @@ func GetRestaurants(c *gin.Context) {
 // @Failure 500 {object} ErrorResponse "Internal server error while creating the restaurant."
 // @Router /restaurants [post]
 func CreateRestaurant(c *gin.Context) {
-	var restaurant models.Restaurant
-	if err := c.ShouldBindJSON(&restaurant); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+	// Parse multipart form
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing form!"})
 		return
+	}
+
+	name := c.Request.FormValue("name")
+	address := c.Request.FormValue("address")
+	telephone := c.Request.FormValue("telephone")
+	description := c.Request.FormValue("description")
+
+	file, header, err := c.Request.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing image!"})
+		return
+	}
+
+	defer file.Close()
+
+	imageUrl, err := utils.UploadImageToS3("redrice", file, header.Filename)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error uploading image!"})
+		return 
+	}
+
+	restaurant := models.Restaurant {
+		Name: name,
+		Address: address,
+		Telephone: telephone,
+		Description: description,
+		ImageURL: imageUrl,
 	}
 
 	if err := RestaurantHandler.CreateRestaurant(&restaurant); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating restaurant!"})
 		return
 	}
+
 
 	c.JSON(http.StatusCreated, restaurant)
 }
