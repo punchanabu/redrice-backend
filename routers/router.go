@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/punchanabu/redrice-backend-go/config"
 	docs "github.com/punchanabu/redrice-backend-go/docs"
 	"github.com/punchanabu/redrice-backend-go/middleware"
 	"github.com/punchanabu/redrice-backend-go/routers/api"
@@ -17,7 +18,7 @@ import (
 func UseRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
-
+	r.Use(config.CORSMiddleware())
 	docs.SwaggerInfo.Title = "RedRice API"
 	docs.SwaggerInfo.Description = "This is a server for managing restaurant with RedRice API build with Go Gin and Gorm"
 	docs.SwaggerInfo.BasePath = "/api/v1"

@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
 	config "github.com/punchanabu/redrice-backend-go/config"
 	routers "github.com/punchanabu/redrice-backend-go/routers"
@@ -41,7 +40,6 @@ func main() {
 
 	// Initialize router
 	r := routers.UseRouter()
-	r.Use(cors.New(config.CORSConfig()))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
