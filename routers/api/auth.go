@@ -93,7 +93,7 @@ type ErrorResponse struct {
 // @Failure 401 {object} ErrorResponse "Authentication failed due to invalid login credentials."
 // @Failure 404 {object} ErrorResponse "The specified user was not found in the system."
 // @Failure 500 {object} ErrorResponse "Internal server error, unable to process the request."
-// @Router /auth/login [post]
+// @Router /auth/signin [post]
 func Login(c *gin.Context) {
 
 	var loginDetails LoginDetails

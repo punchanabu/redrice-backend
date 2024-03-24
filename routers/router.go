@@ -27,7 +27,7 @@ func UseRouter() *gin.Engine {
 
 	apiv1 := r.Group("/api/v1")
 	auth := apiv1.Group("/auth")
-	auth.POST("/login", api.Login)
+	auth.POST("/signin", api.Login)
 	auth.POST("/register", api.Register)
 	apiv1.Use(middleware.Auth())
 	{
