@@ -1,18 +1,22 @@
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
 type Restaurant struct {
-	ID        uint   `gorm:"primaryKey"`
-	Name      string `json:"name"`
-	Address   string `json:"address"`
-	Telephone string `json:"telephone"`
-	Instagram string `json:"instagram"`
-	Facebook string `json:"facebook"`
-	Description string `json:"description"`
-	ImageURL    string `json:"imageUrl"`
+	ID          uint      `gorm:"primaryKey"`
+	Name        string    `json:"name"`
+	Address     string    `json:"address"`
+	Telephone   string    `json:"telephone"`
+	OpenTime    time.Time `json:"openTime"`
+	CloseTime   time.Time `json:"closeTime"`
+	Instagram   string    `json:"instagram"`
+	Facebook    string    `json:"facebook"`
+	Description string    `json:"description"`
+	ImageURL    string    `json:"imageUrl"`
 	gorm.Model  `json:"-" swaggerignore:"true"`
 }
 
