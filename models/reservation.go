@@ -31,7 +31,7 @@ func (h *ReservationHandler) CreateReservation(userID uint, reservation *Reserva
 		return err
 	}
 
-	return h.db.Preload("User").Preload("Restaurant").First(reservation, reservation.ID).Error
+	return h.db.Preload("user").Preload("restaurant").First(reservation, reservation.ID).Error
 }
 
 func (h *ReservationHandler) GetReservation(id uint) (*Reservation, error) {
