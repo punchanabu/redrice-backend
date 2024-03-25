@@ -166,3 +166,36 @@ func DeleteReservation(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Reservation deleted successfully"})
 }
+
+// GetUserReservations retrieves all reservations for a given user ID.
+// @Summary Get User's Reservations
+// @Description Retrieves a list of reservations associated with a specific user.
+// @Tags reservations
+// @Produce json
+// @Param userId path int true "User ID"
+// @Security Bearer
+// @Success 200 {array} models.Reservation "An array of reservation objects for the user."
+// @Failure 400 {object} ErrorResponse "Invalid user ID format."
+// @Failure 404 {object} ErrorResponse "Reservations not found for the specified user ID."
+// @Router /users/{userId}/reservations [get]
+func GetUserReservations(c *gin.Context) {
+	userID := c.Param("id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	uid, err := strconv.ParseUint(userID, 10, 32) // Convert userID from string to uint
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing user ID"})
+		return
+	}
+
+	reservations, err := reservationHandler.GetReservationsByUserID(uint(uid)) // Correctly cast to uint now
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching reservations for user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, reservations)
+}

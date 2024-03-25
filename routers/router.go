@@ -39,6 +39,7 @@ func UseRouter() *gin.Engine {
 		apiv1.GET("/users", v1.GetUsers)
 		apiv1.GET("/me", v1.GetMe)
 		apiv1.GET("/users/:id", v1.GetUser)
+		apiv1.GET("/users/:id/reservations", v1.GetUserReservations)
 		apiv1.POST("/reservations", v1.CreateReservation)
 
 		// for admin
