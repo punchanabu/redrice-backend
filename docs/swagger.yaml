@@ -66,13 +66,21 @@ definitions:
     properties:
       address:
         type: string
+      closeTime:
+        type: string
       description:
+        type: string
+      facebook:
         type: string
       id:
         type: integer
       imageUrl:
         type: string
+      instagram:
+        type: string
       name:
+        type: string
+      openTime:
         type: string
       telephone:
         type: string
@@ -101,7 +109,38 @@ definitions:
 info:
   contact: {}
 paths:
-  /auth/login:
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with the provided details. Upon successful
+        creation, the user can log in with their credentials.
+      parameters:
+      - description: Register Credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/api.RegisterDetails'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Confirmation of successful registration.
+          schema:
+            $ref: '#/definitions/api.RegisterResponse'
+        "400":
+          description: The request was formatted incorrectly or missing required fields.
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal server error, unable to process the request.
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - authentication
+  /auth/signin:
     post:
       consumes:
       - application/json
@@ -139,37 +178,6 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: User Login
-      tags:
-      - authentication
-  /auth/register:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new user account with the provided details. Upon successful
-        creation, the user can log in with their credentials.
-      parameters:
-      - description: Register Credentials
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/api.RegisterDetails'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Confirmation of successful registration.
-          schema:
-            $ref: '#/definitions/api.RegisterResponse'
-        "400":
-          description: The request was formatted incorrectly or missing required fields.
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal server error, unable to process the request.
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Register a new user
       tags:
       - authentication
   /me:

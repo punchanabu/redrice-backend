@@ -15,7 +15,53 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/auth/register": {
+            "post": {
+                "description": "Creates a new user account with the provided details. Upon successful creation, the user can log in with their credentials.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Register Credentials",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.RegisterDetails"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Confirmation of successful registration.",
+                        "schema": {
+                            "$ref": "#/definitions/api.RegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "The request was formatted incorrectly or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error, unable to process the request.",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signin": {
             "post": {
                 "description": "Authenticates a user by their email and password, returning a JWT token for authorized access to protected endpoints if successful.",
                 "consumes": [
@@ -60,52 +106,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "The specified user was not found in the system.",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error, unable to process the request.",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/register": {
-            "post": {
-                "description": "Creates a new user account with the provided details. Upon successful creation, the user can log in with their credentials.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "authentication"
-                ],
-                "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "Register Credentials",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.RegisterDetails"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Confirmation of successful registration.",
-                        "schema": {
-                            "$ref": "#/definitions/api.RegisterResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "The request was formatted incorrectly or missing required fields.",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
@@ -932,7 +932,13 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
+                "closeTime": {
+                    "type": "string"
+                },
                 "description": {
+                    "type": "string"
+                },
+                "facebook": {
                     "type": "string"
                 },
                 "id": {
@@ -941,7 +947,13 @@ const docTemplate = `{
                 "imageUrl": {
                     "type": "string"
                 },
+                "instagram": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "openTime": {
                     "type": "string"
                 },
                 "telephone": {
