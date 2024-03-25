@@ -139,27 +139,64 @@ func CreateRestaurant(c *gin.Context) {
 func UpdateRestaurant(c *gin.Context) {
 	idString := c.Param("id")
 	idInt, err := strconv.Atoi(idString)
-
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant ID"})
 		return
 	}
-
 	idUint := uint(idInt)
 
-	var restaurant models.Restaurant
-	if err := c.ShouldBindJSON(&restaurant); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// Parse multipart form
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing form"})
 		return
 	}
 
-	err = RestaurantHandler.UpdateRestaurant(idUint, &restaurant)
+	// Extract data from the form
+	name := c.Request.FormValue("name")
+	address := c.Request.FormValue("address")
+	telephone := c.Request.FormValue("telephone")
+	description := c.Request.FormValue("description")
+	facebook := c.Request.FormValue("facebook")
+	instagram := c.Request.FormValue("instagram")
+	openTime := c.Request.FormValue("openTime")
+	closeTime := c.Request.FormValue("closeTime")
+
+	file, header, err := c.Request.FormFile("image")
+	var imageUrl string
+	if err == nil { 
+		defer file.Close()
+		imageUrl, err = utils.UploadImageToS3("redrice", file, header.Filename)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error uploading image"})
+			return
+		}
+	} else {
+		imageUrl = ""
+	}
+
+	// Create an updated restaurant model
+	updatedRestaurant := models.Restaurant{
+		Name:        name,
+		Address:     address,
+		Telephone:   telephone,
+		Description: description,
+		Facebook:    facebook,
+		Instagram:   instagram,
+		OpenTime:    openTime,
+		CloseTime:   closeTime,
+	}
+	if imageUrl != "" {
+		updatedRestaurant.ImageURL = imageUrl
+	}
+
+	// Update the restaurant in the database
+	err = RestaurantHandler.UpdateRestaurant(idUint, &updatedRestaurant)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Restaurant not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, restaurant)
+	c.JSON(http.StatusOK, updatedRestaurant)
 }
 
 // @Summary Delete a Restaurant
