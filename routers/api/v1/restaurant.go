@@ -3,7 +3,7 @@ package v1
 import (
 	"net/http"
 	"strconv"
-	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"github.com/punchanabu/redrice-backend-go/utils"
@@ -87,8 +87,8 @@ func CreateRestaurant(c *gin.Context) {
 	description := c.Request.FormValue("description")
 	facebook := c.Request.FormValue("facebook")
 	instagram := c.Request.FormValue("instagram")
-	OpenTime := c.Request.FormValue("openTime")
-	CloseTime := c.Request.FormValue("closeTime")
+	openTime := c.Request.FormValue("openTime")
+	closeTime := c.Request.FormValue("closeTime")
 	file, header, err := c.Request.FormFile("image")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing image!"})
@@ -101,18 +101,6 @@ func CreateRestaurant(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error uploading image!"})
-		return
-	}
-
-	openTime, err := time.Parse("15:04", OpenTime)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid open time format"})
-		return
-	}
-
-	closeTime, err := time.Parse("15:04", CloseTime)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid close time format"})
 		return
 	}
 
