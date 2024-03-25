@@ -52,6 +52,7 @@ func UseRouter() *gin.Engine {
 			adminRoutes.POST("/restaurants", v1.CreateRestaurant)
 			adminRoutes.PUT("/reservations/:id", v1.UpdateReservation)
 			adminRoutes.PUT("/restaurants/:id", v1.UpdateRestaurant)
+			adminRoutes.DELETE("/reservations/:id", v1.DeleteReservation)
 			adminRoutes.DELETE("/restaurants/:id", v1.DeleteRestaurant)
 		}
 
