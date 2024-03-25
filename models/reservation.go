@@ -35,16 +35,17 @@ func (h *ReservationHandler) CreateReservation(userID uint, reservation *Reserva
 }
 
 func (h *ReservationHandler) GetReservation(id uint) (*Reservation, error) {
-	var reservation Reservation
-	result := h.db.First(&reservation, id)
-	return &reservation, result.Error
+    var reservation Reservation
+    result := h.db.Preload("User").Preload("Restaurant").First(&reservation, id)
+    return &reservation, result.Error
 }
 
 func (h *ReservationHandler) GetReservations() ([]Reservation, error) {
-	var reservations []Reservation
-	result := h.db.Find(&reservations)
-	return reservations, result.Error
+    var reservations []Reservation
+    result := h.db.Preload("User").Preload("Restaurant").Find(&reservations)
+    return reservations, result.Error
 }
+
 
 func (h *ReservationHandler) UpdateReservation(id uint, reservation *Reservation) error {
 	result := h.db.Model(&Reservation{}).Where("id = ?", id).Updates(reservation)
