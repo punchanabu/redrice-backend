@@ -9,6 +9,8 @@ import (
 type Reservation struct {
 	ID           uint       `gorm:"primaryKey"`
 	DateTime     time.Time  `json:"dateTime"`
+	TableNum     int        `json:"tableNum"`
+	ExitTime     time.Time  `json:"exitTime"`
 	UserID       uint       `json:"userId"`
 	User         User       `gorm:"foreignKey:UserID" json:"user"`
 	RestaurantID uint       `json:"restaurantId"`
