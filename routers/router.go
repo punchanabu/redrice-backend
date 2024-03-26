@@ -41,7 +41,9 @@ func UseRouter() *gin.Engine {
 		apiv1.GET("/users/:id", v1.GetUser)
 		apiv1.GET("/users/:id/reservations", v1.GetUserReservations)
 		apiv1.POST("/reservations", v1.CreateReservation)
-
+		apiv1.PUT("/reservations/:id", v1.UpdateReservation)
+		apiv1.DELETE("/reservations/:id", v1.DeleteReservation)
+		
 		// for admin
 		adminRoutes := apiv1.Group("/")
 		adminRoutes.Use(middleware.Admin())
@@ -50,9 +52,7 @@ func UseRouter() *gin.Engine {
 			adminRoutes.PUT("/users/:id", v1.UpdateUser)
 			adminRoutes.DELETE("/users/:id", v1.DeleteUser)
 			adminRoutes.POST("/restaurants", v1.CreateRestaurant)
-			adminRoutes.PUT("/reservations/:id", v1.UpdateReservation)
 			adminRoutes.PUT("/restaurants/:id", v1.UpdateRestaurant)
-			adminRoutes.DELETE("/reservations/:id", v1.DeleteReservation)
 			adminRoutes.DELETE("/restaurants/:id", v1.DeleteRestaurant)
 		}
 
