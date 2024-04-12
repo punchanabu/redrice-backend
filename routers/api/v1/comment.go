@@ -129,6 +129,25 @@ func UpdateComment(c *gin.Context) {
 
 	idUint := uint(idInt)
 
+	// Check if the user is the owner of the comment
+    id, ok := c.Get("id")
+    if !ok {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
+        return
+    }
+
+    userID, ok := id.(uint)
+    ownComment, err := commentHandler.GetComment(idUint)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching comment for restaurant"})
+		return
+	}
+
+	if ownComment.UserID != userID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized to update this comment"})
+		return
+	}
+
 	err = commentHandler.UpdateComment(idUint, &comment)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating comment"})
@@ -158,6 +177,25 @@ func DeleteComment(c *gin.Context) {
 
 	idUint := uint(idInt)
 
+	// Check if the user is the owner of the comment
+    id, ok := c.Get("id")
+    if !ok {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
+        return
+    }
+
+    userID, ok := id.(uint)
+    ownComment, err := commentHandler.GetComment(idUint)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching comment for restaurant"})
+		return
+	}
+
+	if ownComment.UserID != userID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized to delete this comment"})
+		return
+	}
+
 	err = commentHandler.DeleteComment(idUint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error deleting comment"})
@@ -165,4 +203,37 @@ func DeleteComment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})
+}
+
+// GetRestaurantComments retrieves all comments for a given restaurant ID.
+// @Summary Get Reataurant's Comments
+// @Description Retrieves a list of comments associated with a specific restaurant.
+// @Tags comments
+// @Produce json
+// @Param restaurantId path int true "Reataurant ID"
+// @Security Bearer
+// @Success 200 {array} models.Comment "An array of comment objects for the restaurant."
+// @Failure 400 {object} ErrorResponse "Invalid reataurant ID format."
+// @Failure 404 {object} ErrorResponse "Comments not found for the specified restaurant ID."
+// @Router /restaurants/{restaurantID}/comments [get]
+func GetRestaurantComments(c *gin.Context) {
+	RestaurantID := c.Param("id")
+	if RestaurantID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant ID format"})
+		return
+	}
+
+	uid, err := strconv.ParseUint(RestaurantID, 10, 32) // Convert ReataurantID from string to uint
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing restaurant ID"})
+		return
+	}
+
+	comments, err := commentHandler.GetCommentsByRestaurantID(uint(uid)) // Correctly cast to uint now
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching comments for restaurant"})
+		return
+	}
+
+	c.JSON(http.StatusOK, comments)
 }

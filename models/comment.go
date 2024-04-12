@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -55,4 +54,14 @@ func (h *CommentHandler) UpdateComment(id uint, comment *Comment) error {
 func (h *CommentHandler) DeleteComment(id uint) error {
 	result := h.db.Delete(&Comment{}, id)
 	return result.Error
+}
+
+func (h *CommentHandler) GetCommentsByRestaurantID(restaurantID uint) ([]Comment, error) {
+	var comments []Comment
+	result := h.db.Preload("Restaurant").Preload("User").Where("restaurant_id = ?", restaurantID).Find(&comments)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return comments, nil
 }

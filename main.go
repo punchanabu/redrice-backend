@@ -37,6 +37,7 @@ func main() {
 	v1.InitializedRestaurantHandler(db)
 	api.InitializedAuthHandler(db)
 	v1.InitializedReservationHandler(db)
+	v1.InitializedCommentHandler(db)
 
 	// Initialize router
 	r := routers.UseRouter()
