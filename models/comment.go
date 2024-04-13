@@ -2,13 +2,15 @@ package models
 
 import (
 	"time"
+
 	"gorm.io/gorm"
 )
 
 type Comment struct {
 	ID           uint       `gorm:"primaryKey"`
 	DateTime     time.Time  `json:"dateTime"`
-	MyComment	 string 	`json:"myComment"`
+	MyComment    string     `json:"myComment"`
+	Rating       float32    `json:"rating"`
 	UserID       uint       `json:"userId"`
 	User         User       `gorm:"foreignKey:UserID" json:"user"`
 	RestaurantID uint       `json:"restaurantId"`
