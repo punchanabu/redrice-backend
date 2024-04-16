@@ -160,6 +160,8 @@ func UpdateRestaurant(c *gin.Context) {
 	instagram := c.Request.FormValue("instagram")
 	openTime := c.Request.FormValue("openTime")
 	closeTime := c.Request.FormValue("closeTime")
+	ratingStr := c.Request.FormValue("rating")
+	commentCountStr := c.Request.FormValue("commentCount")
 
 	file, header, err := c.Request.FormFile("image")
 	var imageUrl string
@@ -187,6 +189,26 @@ func UpdateRestaurant(c *gin.Context) {
 	}
 	if imageUrl != "" {
 		updatedRestaurant.ImageURL = imageUrl
+	}
+
+	if ratingStr != "" {
+		rating, err := strconv.ParseFloat(ratingStr, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid rating"})
+			return
+		}
+
+		updatedRestaurant.Rating = rating
+	}
+
+	if commentCountStr != "" {
+		commentCount, err := strconv.Atoi(commentCountStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment count"})
+			return
+		}
+
+		updatedRestaurant.CommentCount = commentCount
 	}
 
 	// Update the restaurant in the database

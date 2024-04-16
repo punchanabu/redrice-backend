@@ -10,6 +10,7 @@ import (
 )
 
 var commentHandler *models.CommentHandler
+var restaurantHandler *models.RestaurantHandler
 
 func InitializedCommentHandler(db *gorm.DB) {
 	commentHandler = models.NewCommentHandler(db)
@@ -95,6 +96,22 @@ func CreateComment(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating comment"})
 		return
+	}
+
+	// Update the comment count for the restaurant
+	restaurant, err := restaurantHandler.GetRestaurant(comment.RestaurantID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching restaurant for comment"})
+		return
+	
+	}
+	restaurant.Rating = (restaurant.Rating * float64(restaurant.CommentCount) + comment.Rating) / float64(restaurant.CommentCount + 1)
+	restaurant.CommentCount++
+	err = restaurantHandler.UpdateRestaurant(comment.RestaurantID, restaurant)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating restaurant comment count"})
+		return
+	
 	}
 
 	c.JSON(http.StatusCreated, comment)
