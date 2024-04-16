@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/middleware"
@@ -38,7 +39,6 @@ type RegisterResponse struct {
 // @Failure 500 {object} ErrorResponse "Internal server error, unable to process the request."
 // @Router /auth/register [post]
 func Register(c *gin.Context) {
-
 	var newUser models.User
 
 	if err := c.ShouldBindJSON(&newUser); err != nil {
@@ -48,6 +48,14 @@ func Register(c *gin.Context) {
 
 	err := userHandler.CreateUser(&newUser)
 	if err != nil {
+		if strings.Contains(err.Error(), "email already exists") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
+			return
+		}
+		if strings.Contains(err.Error(), "telephone already exists") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Telephone already exists"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
 		return
 	}
