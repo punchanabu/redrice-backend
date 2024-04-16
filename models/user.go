@@ -14,6 +14,7 @@ type User struct {
 	Telephone  string `json:"telephone"`
 	Role       string `json:"role"`
 	Password   string `json:"password"`
+	RestaurantId uint `json:"restaurant_id"`
 	gorm.Model `json:"-" swaggerignore:"true"`
 }
 
