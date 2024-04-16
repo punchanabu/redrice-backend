@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -14,6 +15,7 @@ var restaurantHandler *models.RestaurantHandler
 
 func InitializedCommentHandler(db *gorm.DB) {
 	commentHandler = models.NewCommentHandler(db)
+	restaurantHandler = models.NewRestaurantHandler(db)
 }
 
 // @Summary Get All Comments
@@ -76,43 +78,61 @@ func GetComment(c *gin.Context) {
 func CreateComment(c *gin.Context) {
 	var comment models.Comment
 	if err := c.ShouldBindJSON(&comment); err != nil {
+		log.Println("Error binding JSON:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input format"})
 		return
 	}
 
+	log.Println("JSON bound successfully:", comment)
+
 	userID, exist := c.Get("id")
 	if !exist {
+		log.Println("No user ID present in the request context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
+	log.Println("User ID found:", userID)
+
 	uid, ok := userID.(uint)
 	if !ok {
+		log.Println("User ID is of invalid type:", userID)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid User Id format"})
 		return
 	}
 
+	log.Println("User ID type assertion successful:", uid)
+
 	err := commentHandler.CreateComment(uid, &comment)
 	if err != nil {
+		log.Println("Error creating comment:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating comment"})
 		return
 	}
 
-	// Update the comment count for the restaurant
+	log.Println("Comment created successfully:", comment)
+
+	// Assuming restaurantHandler is correctly instantiated and not nil
 	restaurant, err := restaurantHandler.GetRestaurant(comment.RestaurantID)
 	if err != nil {
+		log.Println("Error fetching restaurant:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching restaurant for comment"})
 		return
-	
 	}
-	restaurant.Rating = (restaurant.Rating * float64(restaurant.CommentCount) + comment.Rating) / float64(restaurant.CommentCount + 1)
+
+	log.Println("Restaurant fetched successfully:", restaurant)
+
+	// Update the rating and comment count
+	restaurant.Rating = (restaurant.Rating*float64(restaurant.CommentCount) + comment.Rating) / float64(restaurant.CommentCount+1)
 	restaurant.CommentCount++
 	err = restaurantHandler.UpdateRestaurant(comment.RestaurantID, restaurant)
 	if err != nil {
+		log.Println("Error updating restaurant:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating restaurant comment count"})
 		return
-	
 	}
+
+	log.Println("Restaurant updated successfully:", restaurant)
 
 	c.JSON(http.StatusCreated, comment)
 }
@@ -138,7 +158,6 @@ func UpdateComment(c *gin.Context) {
 
 	idString := c.Param("id")
 	idInt, err := strconv.Atoi(idString)
-
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment id"})
 		return
@@ -147,14 +166,18 @@ func UpdateComment(c *gin.Context) {
 	idUint := uint(idInt)
 
 	// Check if the user is the owner of the comment
-    id, ok := c.Get("id")
-    if !ok {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
-        return
-    }
+	id, ok := c.Get("id")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
+		return
+	}
 
-    userID, ok := id.(uint)
-    ownComment, err := commentHandler.GetComment(idUint)
+	userID, ok := id.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Cannot Parse User ID"})
+	}
+
+	ownComment, err := commentHandler.GetComment(idUint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching comment for restaurant"})
 		return
@@ -195,14 +218,14 @@ func DeleteComment(c *gin.Context) {
 	idUint := uint(idInt)
 
 	// Check if the user is the owner of the comment
-    id, ok := c.Get("id")
-    if !ok {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
-        return
-    }
+	id, ok := c.Get("id")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
+		return
+	}
 
-    userID, ok := id.(uint)
-    ownComment, err := commentHandler.GetComment(idUint)
+	userID, ok := id.(uint)
+	ownComment, err := commentHandler.GetComment(idUint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching comment for restaurant"})
 		return
