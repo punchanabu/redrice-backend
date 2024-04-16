@@ -236,6 +236,25 @@ func DeleteComment(c *gin.Context) {
 		return
 	}
 
+	restaurant, err := restaurantHandler.GetRestaurant(ownComment.RestaurantID)
+	if err != nil {
+		log.Println("Error fetching restaurant:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching restaurant for comment"})
+		return
+	}
+
+	log.Println("Restaurant fetched successfully:", restaurant)
+
+	// Update the rating and comment count
+	restaurant.Rating = (restaurant.Rating*float64(restaurant.CommentCount) - ownComment.Rating) / float64(restaurant.CommentCount-1)
+	restaurant.CommentCount--
+	err = restaurantHandler.UpdateRestaurant(ownComment.RestaurantID, restaurant)
+	if err != nil {
+		log.Println("Error updating restaurant:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating restaurant comment count"})
+		return
+	}
+
 	err = commentHandler.DeleteComment(idUint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error deleting comment"})
