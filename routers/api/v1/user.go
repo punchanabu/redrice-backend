@@ -3,6 +3,7 @@ package v1
 import (
 	"net/http"
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"gorm.io/gorm"
@@ -84,6 +85,17 @@ func CreateUser(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if email or telephone already exists
+	existingUser, err := userHandler.GetUserByEmail(user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error checking for duplicate user"})
+		return
+	}
+	if existingUser != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email or telephone already exists"})
 		return
 	}
 
