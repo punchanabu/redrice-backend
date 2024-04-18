@@ -1,21 +1,25 @@
 package models
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
 type Restaurant struct {
-	ID          uint   `gorm:"primaryKey"`
-	Name        string `json:"name"`
-	Address     string `json:"address"`
-	Telephone   string `json:"telephone"`
-	OpenTime    string `json:"openTime"`
-	CloseTime   string `json:"closeTime"`
-	Instagram   string `json:"instagram"`
-	Facebook    string `json:"facebook"`
-	Description string `json:"description"`
-	ImageURL    string `json:"imageUrl"`
-	gorm.Model  `json:"-" swaggerignore:"true"`
+	ID           uint    `gorm:"primaryKey"`
+	Name         string  `json:"name"`
+	Address      string  `json:"address"`
+	Telephone    string  `json:"telephone"`
+	OpenTime     string  `json:"openTime"`
+	CloseTime    string  `json:"closeTime"`
+	Instagram    string  `json:"instagram"`
+	Facebook     string  `json:"facebook"`
+	Description  string  `json:"description"`
+	Rating       float64 `json:"rating" gorm:"default:0"`
+	CommentCount int     `json:"commentCount" gorm:"default:0"`
+	ImageURL     string  `json:"imageUrl"`
+	gorm.Model   `json:"-" swaggerignore:"true"`
 }
 
 type RestaurantHandler struct {
@@ -48,6 +52,13 @@ func (h *RestaurantHandler) UpdateRestaurant(id uint, restaurant *Restaurant) er
 }
 
 func (h *RestaurantHandler) DeleteRestaurant(id uint) error {
-	result := h.db.Delete(&Restaurant{}, id)
-	return result.Error
+	// Bypass soft delete and force a hard delete
+	result := h.db.Unscoped().Where("id = ?", id).Delete(&Restaurant{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no restaurant found with id %d", id)
+	}
+	return nil
 }
