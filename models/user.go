@@ -8,14 +8,14 @@ import (
 )
 
 type User struct {
-	ID         uint   `gorm:"primaryKey"`
-	Name       string `json:"name"`
-	Email      string `json:"email" gorm:"unique"`
-	Telephone  string `json:"telephone" gorm:"unique"`
-	Role       string `json:"role"`
-	Password   string `json:"password"`
-	RestaurantId uint `json:"restaurant_id"`
-	gorm.Model `json:"-" swaggerignore:"true"`
+	ID           uint   `gorm:"primaryKey"`
+	Name         string `json:"name"`
+	Email        string `json:"email" gorm:"unique"`
+	Telephone    string `json:"telephone" gorm:"unique"`
+	Role         string `json:"role"`
+	Password     string `json:"password"`
+	RestaurantId uint   `json:"restaurant_id"`
+	gorm.Model   `json:"-" swaggerignore:"true"`
 }
 
 type UserHandler struct {
@@ -27,24 +27,6 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 }
 
 func (h UserHandler) CreateUser(user *User) error {
-	// Check if email already exists
-	existingEmail, err := h.GetUserByEmail(user.Email)
-	if err != nil {
-		return err
-	}
-	if existingEmail != nil {
-		return fmt.Errorf("email already exists")
-	}
-
-	// Check if telephone already exists
-	existingTelephone, err := h.GetUserByTelephone(user.Telephone)
-	if err != nil {
-		return err
-	}
-	if existingTelephone != nil {
-		return fmt.Errorf("telephone already exists")
-	}
-
 	// Hash the password before storing
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
