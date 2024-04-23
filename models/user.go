@@ -8,13 +8,14 @@ import (
 )
 
 type User struct {
-	ID         uint   `gorm:"primaryKey"`
-	Name       string `json:"name"`
-	Email      string `json:"email"`
-	Telephone  string `json:"telephone"`
-	Role       string `json:"role"`
-	Password   string `json:"password"`
-	gorm.Model `json:"-" swaggerignore:"true"`
+	ID           uint   `gorm:"primaryKey"`
+	Name         string `json:"name"`
+	Email        string `json:"email" gorm:"unique"`
+	Telephone    string `json:"telephone" gorm:"unique"`
+	Role         string `json:"role"`
+	Password     string `json:"password"`
+	RestaurantId uint   `json:"restaurant_id"`
+	gorm.Model   `json:"-" swaggerignore:"true"`
 }
 
 type UserHandler struct {
@@ -25,12 +26,15 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 	return &UserHandler{db}
 }
 
-func (h *UserHandler) CreateUser(user *User) error {
+func (h UserHandler) CreateUser(user *User) error {
+	// Hash the password before storing
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 	user.Password = string(hashedPassword)
+
+	// Create the user
 	return h.db.Create(user).Error
 }
 
@@ -68,6 +72,15 @@ func (h *UserHandler) DeleteUser(id uint) error {
 func (h *UserHandler) GetUserByEmail(email string) (*User, error) {
 	var user User
 	result := h.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		return nil, fmt.Errorf("user not found")
+	}
+	return &user, result.Error
+}
+
+func (h *UserHandler) GetUserByTelephone(telephone string) (*User, error) {
+	var user User
+	result := h.db.Where("telephone = ?", telephone).First(&user)
 	if result.Error != nil {
 		return nil, fmt.Errorf("user not found")
 	}
