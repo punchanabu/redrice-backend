@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/punchanabu/redrice-backend-go/middleware"
@@ -46,16 +45,22 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	err := userHandler.CreateUser(&newUser)
+	// Check if email already exists
+	existingUser, err := userHandler.GetUserByEmail(newUser.Email)
+	if existingUser != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
+		return
+	}
+
+	// Check if telephone already exists
+	existingUser, err = userHandler.GetUserByTelephone(newUser.Telephone)
+	if existingUser != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Telephone already exists"})
+		return
+	}
+
+	err = userHandler.CreateUser(&newUser)
 	if err != nil {
-		if strings.Contains(err.Error(), "email already exists") {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
-			return
-		}
-		if strings.Contains(err.Error(), "telephone already exists") {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Telephone already exists"})
-			return
-		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
 		return
 	}
