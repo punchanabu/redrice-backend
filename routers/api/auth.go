@@ -11,17 +11,20 @@ import (
 )
 
 var userHandler *models.UserHandler
+var restaurantHandler *models.RestaurantHandler
 
 func InitializedAuthHandler(db *gorm.DB) {
 	userHandler = models.NewUserHandler(db)
+	restaurantHandler = models.NewRestaurantHandler(db)
 }
 
 type RegisterDetails struct {
-	Name      string `json:"name" example:"John Doe"`
-	Telephone string `json:"telephone" example:"123-456-7890"`
-	Email     string `json:"email" example:"john.doe@example.com"`
-	Password  string `json:"password" example:"securePassword123"`
-	Role      string `json:"role" example:"user"`
+	Name         string `json:"name" example:"John Doe"`
+	Telephone    string `json:"telephone" example:"123-456-7890"`
+	Email        string `json:"email" example:"john.doe@example.com"`
+	Password     string `json:"password" example:"securePassword123"`
+	Role         string `json:"role" example:"user"`
+	RestaurantId uint   `json:"restaurant_id" example:"0"`
 }
 
 type RegisterResponse struct {
@@ -44,6 +47,15 @@ func Register(c *gin.Context) {
 	if err := c.ShouldBindJSON(&newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input format! please check the input format"})
 		return
+	}
+
+	// Check if the restaurant exists
+	if newUser.RestaurantId != 0 {
+		restaurant, err := restaurantHandler.GetRestaurant(newUser.RestaurantId)
+		if err != nil || restaurant == nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant ID"})
+			return
+		}
 	}
 
 	err := userHandler.CreateUser(&newUser)
