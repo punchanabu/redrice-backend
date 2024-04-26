@@ -91,7 +91,18 @@ func CreateReservation(c *gin.Context) {
 		return
 	}
 
-	err := reservationHandler.CreateReservation(uid, &reservation)
+	OwnReservations, err := reservationHandler.GetReservationsByUserID(uint(uid)) // Correctly cast to uint now
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching reservations for user"})
+		return
+	}
+
+	if len(OwnReservations) == 3 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "User already has 3 reservations. Cannot create more."})
+		return
+	}
+
+	err = reservationHandler.CreateReservation(uid, &reservation)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating reservation"})
 		return

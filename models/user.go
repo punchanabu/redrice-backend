@@ -8,14 +8,14 @@ import (
 )
 
 type User struct {
-	ID         uint   `gorm:"primaryKey"`
-	Name       string `json:"name"`
-	Email      string `json:"email" gorm:"unique"`
-	Telephone  string `json:"telephone" gorm:"unique"`
-	Role       string `json:"role"`
-	Password   string `json:"password"`
-	RestaurantId uint `json:"restaurant_id"`
-	gorm.Model `json:"-" swaggerignore:"true"`
+	ID           uint   `gorm:"primaryKey"`
+	Name         string `json:"name"`
+	Email        string `json:"email" gorm:"unique"`
+	Telephone    string `json:"telephone" gorm:"unique"`
+	Role         string `json:"role"`
+	Password     string `json:"password"`
+	RestaurantId uint   `json:"restaurant_id"`
+	gorm.Model   `json:"-" swaggerignore:"true"`
 }
 
 type UserHandler struct {
