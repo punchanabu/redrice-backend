@@ -122,9 +122,12 @@ func CreateComment(c *gin.Context) {
 
 	log.Println("Restaurant fetched successfully:", restaurant)
 
+	resCommentCnt := *restaurant.CommentCount
+
 	// Update the rating and comment count
-	restaurant.Rating = (restaurant.Rating*float64(restaurant.CommentCount) + comment.Rating) / float64(restaurant.CommentCount+1)
-	restaurant.CommentCount++
+	rating := (*restaurant.Rating*float64(resCommentCnt) + comment.Rating) / float64(resCommentCnt+1)
+	restaurant.Rating = &rating
+	*restaurant.CommentCount++
 	err = restaurantHandler.UpdateRestaurant(comment.RestaurantID, restaurant)
 	if err != nil {
 		log.Println("Error updating restaurant:", err)
@@ -246,17 +249,17 @@ func DeleteComment(c *gin.Context) {
 	log.Println("Restaurant fetched successfully:", restaurant)
 
 	// Update the rating and comment count
-	if restaurant.CommentCount == 1 {
-		restaurant.Rating = 0.0
-		restaurant.CommentCount = 0
+	if *restaurant.CommentCount == 1 {
+		*restaurant.Rating = 0.0
+		*restaurant.CommentCount = 0
 	} else {
-		newCnt := restaurant.CommentCount - 1
+		newCnt := *restaurant.CommentCount - 1
 		if newCnt > 0 {
-			restaurant.Rating = (restaurant.Rating*float64(restaurant.CommentCount) - ownComment.Rating) / float64(restaurant.CommentCount-1)
+			*restaurant.Rating = (*restaurant.Rating*float64(*restaurant.CommentCount) - ownComment.Rating) / float64(newCnt)
 		} else {
-			restaurant.Rating = 0.0
+			*restaurant.Rating = 0.0
 		}
-		restaurant.CommentCount = newCnt
+		restaurant.CommentCount = &newCnt
 	}
 
 	err = restaurantHandler.UpdateRestaurant(ownComment.RestaurantID, restaurant)

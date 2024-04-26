@@ -165,7 +165,7 @@ func UpdateRestaurant(c *gin.Context) {
 
 	file, header, err := c.Request.FormFile("image")
 	var imageUrl string
-	if err == nil { 
+	if err == nil {
 		defer file.Close()
 		imageUrl, err = utils.UploadImageToS3("redrice", file, header.Filename)
 		if err != nil {
@@ -198,17 +198,17 @@ func UpdateRestaurant(c *gin.Context) {
 			return
 		}
 
-		updatedRestaurant.Rating = rating
+		updatedRestaurant.Rating = &rating
 	}
 
 	if commentCountStr != "" {
-		commentCount, err := strconv.Atoi(commentCountStr)
+		commentCount, err := strconv.ParseFloat(commentCountStr, 64)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment count"})
 			return
 		}
 
-		updatedRestaurant.CommentCount = commentCount
+		updatedRestaurant.CommentCount = &commentCount
 	}
 
 	// Update the restaurant in the database
