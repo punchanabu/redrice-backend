@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -54,7 +53,7 @@ func (h *CommentHandler) UpdateComment(id uint, comment *Comment) error {
 }
 
 func (h *CommentHandler) DeleteComment(id uint) error {
-	result := h.db.Unscoped().Delete(&Comment{}, id)
+	result := h.db.Delete(&Comment{}, id)
 	return result.Error
 }
 
