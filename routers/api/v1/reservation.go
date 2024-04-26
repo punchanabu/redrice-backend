@@ -3,8 +3,10 @@ package v1
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/punchanabu/redrice-backend-go/middleware"
 	"github.com/punchanabu/redrice-backend-go/models"
 	"gorm.io/gorm"
 )
@@ -91,13 +93,23 @@ func CreateReservation(c *gin.Context) {
 		return
 	}
 
+	authHeader := c.GetHeader("Authorization")
+	parts := strings.SplitN(authHeader, " ", 2)
+	tokenString := parts[1]
+	claims, err := middleware.ValidateToken(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized 🥹 Please login first!"})
+		c.Abort()
+		return
+	}
+
 	OwnReservations, err := reservationHandler.GetReservationsByUserID(uint(uid)) // Correctly cast to uint now
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching reservations for user"})
 		return
 	}
 
-	if len(OwnReservations) == 3 {
+	if len(OwnReservations) == 3 && claims.Role != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "User already has 3 reservations. Cannot create more."})
 		return
 	}
