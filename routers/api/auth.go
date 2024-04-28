@@ -68,7 +68,7 @@ func Register(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Telephone already exists"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 

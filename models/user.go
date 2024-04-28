@@ -28,19 +28,13 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 
 func (h UserHandler) CreateUser(user *User) error {
 	// Check if email already exists
-	existingEmail, err := h.GetUserByEmail(user.Email)
-	if err != nil {
-		return err
-	}
+	existingEmail, _ := h.GetUserByEmail(user.Email)
 	if existingEmail != nil {
 		return fmt.Errorf("email already exists")
 	}
 
 	// Check if telephone already exists
-	existingTelephone, err := h.GetUserByTelephone(user.Telephone)
-	if err != nil {
-		return err
-	}
+	existingTelephone, _ := h.GetUserByTelephone(user.Telephone)
 	if existingTelephone != nil {
 		return fmt.Errorf("telephone already exists")
 	}
