@@ -56,7 +56,8 @@ func UploadImageToS3(bucketName string, file io.Reader, fileName string) (string
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-disposition", "inline")
 
-	presignedURL, err := minioClient.PresignedGetObject(context.Background(), bucketName, key, 24*time.Hour, reqParams)
+	presignedURL, err := minioClient.PresignedGetObject(context.Background(), bucketName, key,7*24*time.Hour, reqParams)
+
 	if err != nil {
 		log.Printf("Failed to generate presigned URL: %v", err)
 		return "", err
