@@ -27,6 +27,24 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 }
 
 func (h UserHandler) CreateUser(user *User) error {
+	// Check if email already exists
+	existingEmail, err := h.GetUserByEmail(user.Email)
+	if err != nil {
+		return err
+	}
+	if existingEmail != nil {
+		return fmt.Errorf("email already exists")
+	}
+
+	// Check if telephone already exists
+	existingTelephone, err := h.GetUserByTelephone(user.Telephone)
+	if err != nil {
+		return err
+	}
+	if existingTelephone != nil {
+		return fmt.Errorf("telephone already exists")
+	}
+
 	// Hash the password before storing
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {

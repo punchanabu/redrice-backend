@@ -57,7 +57,7 @@ func GetComment(c *gin.Context) {
 	idUint := uint(idInt)
 	comment, err := commentHandler.GetComment(idUint)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Reservation not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "comment not found"})
 		return
 	}
 
@@ -122,9 +122,12 @@ func CreateComment(c *gin.Context) {
 
 	log.Println("Restaurant fetched successfully:", restaurant)
 
+	resCommentCnt := *restaurant.CommentCount
+
 	// Update the rating and comment count
-	restaurant.Rating = (restaurant.Rating*float64(restaurant.CommentCount) + comment.Rating) / float64(restaurant.CommentCount+1)
-	restaurant.CommentCount++
+	rating := (*restaurant.Rating*float64(resCommentCnt) + comment.Rating) / float64(resCommentCnt+1)
+	restaurant.Rating = &rating
+	*restaurant.CommentCount++
 	err = restaurantHandler.UpdateRestaurant(comment.RestaurantID, restaurant)
 	if err != nil {
 		log.Println("Error updating restaurant:", err)
@@ -224,7 +227,7 @@ func DeleteComment(c *gin.Context) {
 		return
 	}
 
-	userID, ok := id.(uint)
+	userID := id.(uint)
 	ownComment, err := commentHandler.GetComment(idUint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching comment for restaurant"})
@@ -246,8 +249,19 @@ func DeleteComment(c *gin.Context) {
 	log.Println("Restaurant fetched successfully:", restaurant)
 
 	// Update the rating and comment count
-	restaurant.Rating = (restaurant.Rating*float64(restaurant.CommentCount) - ownComment.Rating) / float64(restaurant.CommentCount-1)
-	restaurant.CommentCount--
+	if *restaurant.CommentCount == 1 {
+		*restaurant.Rating = 0.0
+		*restaurant.CommentCount = 0
+	} else {
+		newCnt := *restaurant.CommentCount - 1
+		if newCnt > 0 {
+			*restaurant.Rating = (*restaurant.Rating*float64(*restaurant.CommentCount) - ownComment.Rating) / float64(newCnt)
+		} else {
+			*restaurant.Rating = 0.0
+		}
+		restaurant.CommentCount = &newCnt
+	}
+
 	err = restaurantHandler.UpdateRestaurant(ownComment.RestaurantID, restaurant)
 	if err != nil {
 		log.Println("Error updating restaurant:", err)
