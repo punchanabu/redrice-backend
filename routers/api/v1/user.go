@@ -24,7 +24,7 @@ func InitializedUserHandler(db *gorm.DB) {
 // @Tags user
 // @Produce json
 // @Param id path int true "User ID" Format(int64)
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.User "The details of the user including ID, name, email, telephone, and role."
 // @Failure 400 {object} ErrorResponse "Invalid user ID format."
 // @Failure 404 {object} ErrorResponse "User not found with the specified ID."
@@ -54,7 +54,7 @@ func GetUser(c *gin.Context) {
 // @Description Retrieves a list of all users in the system.
 // @Tags user
 // @Produce json
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {array} models.User "An array of user objects."
 // @Failure 500 {object} ErrorResponse "Internal server error while fetching users."
 // @Router /users [get]
@@ -75,7 +75,7 @@ func GetUsers(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param user body models.User true "User Registration Details"
-// @Security Bearer
+// @security BearerAuth
 // @Success 201 {object} models.User "The created user's details, including their unique identifier."
 // @Failure 400 {object} ErrorResponse "Invalid input format for user details."
 // @Failure 500 {object} ErrorResponse "Internal server error while creating the user."
@@ -114,7 +114,7 @@ func CreateUser(c *gin.Context) {
 // @Produce json
 // @Param id path int true "User ID" Format(int64)
 // @Param user body models.User true "Updated User Details"
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.User "The updated user's details."
 // @Failure 400 {object} ErrorResponse "Invalid input format for user details or invalid user ID."
 // @Failure 500 {object} ErrorResponse "Internal server error while updating the user."
@@ -149,7 +149,7 @@ func UpdateUser(c *gin.Context) {
 // @Tags user
 // @Produce json
 // @Param id path int true "User ID" Format(int64)
-// @Security Bearer
+// @security BearerAuth
 // @Success 204 "User successfully deleted, no content to return."
 // @Failure 400 {object} ErrorResponse "Invalid user ID format."
 // @Failure 500 {object} ErrorResponse "Internal server error while deleting the user."
@@ -176,7 +176,7 @@ func DeleteUser(c *gin.Context) {
 // @Description Retrieves the details of the currently authenticated user.
 // @Tags user
 // @Produce json
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.User "The details of the currently authenticated user."
 // @Failure 404 {object} ErrorResponse "User not found."
 // @Router /me [get]

@@ -40,6 +40,11 @@ func main() {
 	v1.InitializedCommentHandler(db)
 
 	// Initialize router
+	// @securityDefinitions.apikey BearerAuth
+	// @in header
+	// @name Authorization
+	// @description Type "Bearer" followed by a space and JWT token.
+	// @security BearerAuth
 	r := routers.UseRouter()
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

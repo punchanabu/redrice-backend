@@ -119,11 +119,240 @@ const docTemplate = `{
                 }
             }
         },
+        "/comments": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves a list of all comments in the system.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Get All Comments",
+                "responses": {
+                    "200": {
+                        "description": "An array of comment objects.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Comment"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error while fetching comments.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a new comment to the system with customer's opinion. This endpoint requires authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Create a New Comment",
+                "parameters": [
+                    {
+                        "description": "Your Comment",
+                        "name": "commnet",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The created comment's details, including its unique identifier.",
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input format for reservation details.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error while creating the reservation.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/comments/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves details of a single commnet by its unique identifier.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Get a Single Comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Comment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The details of the comment including ID, DateTime, Detail, UserID, User, RestaurantID, and Restaurant.",
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid comment ID format.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Comment not found with the specified ID.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates the details of an existing comment identified by its ID. This endpoint requires authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Update a Comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Comment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated comment Details",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The updated comment's details.",
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input format for comment details or invalid comment ID.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Comment not found with the specified ID.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a comment from the system. This endpoint requires authentication.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Delete a Comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Comment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Comment successfully deleted, no content to return."
+                    },
+                    "400": {
+                        "description": "Invalid comment ID format.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Comment not found with the specified ID.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves the details of the currently authenticated user.",
@@ -154,7 +383,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves a list of all reservations in the system.",
@@ -186,7 +415,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Adds a new reservation to the system with the provided details. This endpoint requires authentication.",
@@ -237,7 +466,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves details of a single reservation by its unique identifier.",
@@ -282,7 +511,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Updates the details of an existing reservation identified by its ID. This endpoint requires authentication.",
@@ -337,6 +566,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Removes a reservation from the system by its unique identifier. This endpoint requires authentication.",
                 "produces": [
                     "application/json"
@@ -378,7 +612,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves a list of all restaurants in the system.",
@@ -410,7 +644,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Adds a new restaurant to the system with the provided details.",
@@ -461,7 +695,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves details of a single restaurant by its unique identifier.",
@@ -506,7 +740,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Updates the details of an existing restaurant identified by its ID.",
@@ -563,7 +797,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Removes a restaurant from the system by its unique identifier.",
@@ -603,11 +837,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/restaurants/{restaurantID}/comments": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves a list of comments associated with a specific restaurant.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Get Reataurant's Comments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reataurant ID",
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of comment objects for the restaurant.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Comment"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid reataurant ID format.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Comments not found for the specified restaurant ID.",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves a list of all users in the system.",
@@ -639,7 +922,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Adds a new user to the system with the provided details.",
@@ -690,7 +973,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves details of a single user by their unique identifier.",
@@ -735,7 +1018,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Updates the details of an existing user identified by their ID.",
@@ -792,7 +1075,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Removes a user from the system by their unique identifier.",
@@ -836,7 +1119,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Retrieves a list of reservations associated with a specific user.",
@@ -874,230 +1157,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Reservations not found for the specified user ID.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/comments": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Retrieves a list of all comments in the system.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Get All Comments",
-                "responses": {
-                    "200": {
-                        "description": "An array of comment objects.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Comment"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error while fetching comments.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Adds a new comment to the system. This endpoint requires authentication.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Create a New Comment",
-                "parameters": [
-                    {
-                        "description": "Your Comment",
-                        "name": "comment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Comment"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "The created comment's details, including its unique identifier.",
-                        "schema": {
-                            "$ref": "#/definitions/models.Comment"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid input format for comment details.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error while creating the comment.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/comments/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Retrieves details of a single comment by its unique identifier.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Get a Single Comment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Comment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The details of the comment including ID, DateTime, Detail, UserID, User, RestaurantID, and Restaurant.",
-                        "schema": {
-                            "$ref": "#/definitions/models.Comment"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid comment ID format.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Comment not found with the specified ID.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Updates the details of an existing comment identified by its ID. This endpoint requires authentication.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Update a Comment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Comment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated Comment Details",
-                        "name": "comment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Comment"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The updated comment's details.",
-                        "schema": {
-                            "$ref": "#/definitions/models.Comment"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid input format for comment details or invalid comment ID.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Comment not found with the specified ID.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Removes a comment from the system by its unique identifier. This endpoint requires authentication.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Delete a Comment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Comment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Comment successfully deleted, no content to return."
-                    },
-                    "400": {
-                        "description": "Invalid comment ID format.",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Comment not found with the specified ID.",
                         "schema": {
                             "$ref": "#/definitions/v1.ErrorResponse"
                         }
@@ -1157,6 +1216,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "securePassword123"
                 },
+                "restaurant_id": {
+                    "type": "integer",
+                    "example": 0
+                },
                 "role": {
                     "type": "string",
                     "example": "user"
@@ -1176,7 +1239,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Reservation": {
+        "models.Comment": {
             "type": "object",
             "properties": {
                 "dateTime": {
@@ -1184,6 +1247,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "myComment": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
                 },
                 "restaurant": {
                     "$ref": "#/definitions/models.Restaurant"
@@ -1199,14 +1268,51 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Reservation": {
+            "type": "object",
+            "properties": {
+                "dateTime": {
+                    "type": "string"
+                },
+                "exitTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "restaurant": {
+                    "$ref": "#/definitions/models.Restaurant"
+                },
+                "restaurantId": {
+                    "type": "integer"
+                },
+                "tableNum": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Restaurant": {
             "type": "object",
+            "required": [
+                "commentCount",
+                "rating"
+            ],
             "properties": {
                 "address": {
                     "type": "string"
                 },
                 "closeTime": {
                     "type": "string"
+                },
+                "commentCount": {
+                    "type": "number",
+                    "minimum": 0
                 },
                 "description": {
                     "type": "string"
@@ -1229,6 +1335,10 @@ const docTemplate = `{
                 "openTime": {
                     "type": "string"
                 },
+                "rating": {
+                    "type": "number",
+                    "minimum": 0
+                },
                 "telephone": {
                     "type": "string"
                 }
@@ -1249,6 +1359,9 @@ const docTemplate = `{
                 "password": {
                     "type": "string"
                 },
+                "restaurant_id": {
+                    "type": "integer"
+                },
                 "role": {
                     "type": "string"
                 },
@@ -1265,32 +1378,14 @@ const docTemplate = `{
                     "example": "Description of the error occurred"
                 }
             }
-        },
-        "models.Comment": {
-            "type": "object",
-            "properties": {
-                "dateTime": {
-                    "type": "string"
-                },
-                "myComment": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "restaurant": {
-                    "$ref": "#/definitions/models.Restaurant"
-                },
-                "restaurantId": {
-                    "type": "integer"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "userId": {
-                    "type": "integer"
-                }
-            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

@@ -11,10 +11,11 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @securityDefinitions.apikey Bearer
+// @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
+// @security BearerAuth
 func UseRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())

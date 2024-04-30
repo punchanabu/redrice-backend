@@ -22,7 +22,7 @@ func InitializedReservationHandler(db *gorm.DB) {
 // @Tags reservations
 // @Produce json
 // @Param id path int true "Reservation ID" Format(int64)
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.Reservation "The details of the reservation including ID, DateTime, UserID, User, RestaurantID, and Restaurant."
 // @Failure 400 {object} ErrorResponse "Invalid reservation ID format."
 // @Failure 404 {object} ErrorResponse "Reservation not found with the specified ID."
@@ -50,7 +50,7 @@ func GetReservation(c *gin.Context) {
 // @Description Retrieves a list of all reservations in the system.
 // @Tags reservations
 // @Produce json
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {array} models.Reservation "An array of reservation objects."
 // @Failure 500 {object} ErrorResponse "Internal server error while fetching reservations."
 // @Router /reservations [get]
@@ -69,7 +69,7 @@ func GetReservations(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param reservation body models.Reservation true "Reservation Details"
-// @Security Bearer
+// @security BearerAuth
 // @Success 201 {object} models.Reservation "The created reservation's details, including its unique identifier."
 // @Failure 400 {object} ErrorResponse "Invalid input format for reservation details."
 // @Failure 500 {object} ErrorResponse "Internal server error while creating the reservation."
@@ -130,7 +130,7 @@ func CreateReservation(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Reservation ID" Format(int64)
 // @Param reservation body models.Reservation true "Updated Reservation Details"
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.Reservation "The updated reservation's details."
 // @Failure 400 {object} ErrorResponse "Invalid input format for reservation details or invalid reservation ID."
 // @Failure 404 {object} ErrorResponse "Reservation not found with the specified ID."
@@ -166,6 +166,7 @@ func UpdateReservation(c *gin.Context) {
 // @Tags reservations
 // @Produce json
 // @Param id path int true "Reservation ID" Format(int64)
+// @security BearerAuth
 // @Success 204 "Reservation successfully deleted, no content to return."
 // @Failure 400 {object} ErrorResponse "Invalid reservation ID format."
 // @Failure 404 {object} ErrorResponse "Reservation not found with the specified ID."
@@ -196,7 +197,7 @@ func DeleteReservation(c *gin.Context) {
 // @Tags reservations
 // @Produce json
 // @Param userId path int true "User ID"
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {array} models.Reservation "An array of reservation objects for the user."
 // @Failure 400 {object} ErrorResponse "Invalid user ID format."
 // @Failure 404 {object} ErrorResponse "Reservations not found for the specified user ID."

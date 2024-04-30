@@ -34,6 +34,9 @@ definitions:
       password:
         example: securePassword123
         type: string
+      restaurant_id:
+        example: 0
+        type: integer
       role:
         example: user
         type: string
@@ -47,15 +50,38 @@ definitions:
         example: User registered successfully
         type: string
     type: object
+  models.Comment:
+    properties:
+      dateTime:
+        type: string
+      id:
+        type: integer
+      myComment:
+        type: string
+      rating:
+        type: number
+      restaurant:
+        $ref: '#/definitions/models.Restaurant'
+      restaurantId:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+      userId:
+        type: integer
+    type: object
   models.Reservation:
     properties:
       dateTime:
+        type: string
+      exitTime:
         type: string
       id:
         type: integer
       restaurant:
         $ref: '#/definitions/models.Restaurant'
       restaurantId:
+        type: integer
+      tableNum:
         type: integer
       user:
         $ref: '#/definitions/models.User'
@@ -68,6 +94,9 @@ definitions:
         type: string
       closeTime:
         type: string
+      commentCount:
+        minimum: 0
+        type: number
       description:
         type: string
       facebook:
@@ -82,8 +111,14 @@ definitions:
         type: string
       openTime:
         type: string
+      rating:
+        minimum: 0
+        type: number
       telephone:
         type: string
+    required:
+    - commentCount
+    - rating
     type: object
   models.User:
     properties:
@@ -95,6 +130,8 @@ definitions:
         type: string
       password:
         type: string
+      restaurant_id:
+        type: integer
       role:
         type: string
       telephone:
@@ -180,6 +217,156 @@ paths:
       summary: User Login
       tags:
       - authentication
+  /comments:
+    get:
+      description: Retrieves a list of all comments in the system.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: An array of comment objects.
+          schema:
+            items:
+              $ref: '#/definitions/models.Comment'
+            type: array
+        "500":
+          description: Internal server error while fetching comments.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get All Comments
+      tags:
+      - comments
+    post:
+      consumes:
+      - application/json
+      description: Adds a new comment to the system with customer's opinion. This
+        endpoint requires authentication.
+      parameters:
+      - description: Your Comment
+        in: body
+        name: commnet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Comment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: The created comment's details, including its unique identifier.
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "400":
+          description: Invalid input format for reservation details.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal server error while creating the reservation.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a New Comment
+      tags:
+      - reservations
+  /comments/{id}:
+    delete:
+      description: Removes a comment from the system. This endpoint requires authentication.
+      parameters:
+      - description: Comment ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Comment successfully deleted, no content to return.
+        "400":
+          description: Invalid comment ID format.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Comment not found with the specified ID.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a Comment
+      tags:
+      - comments
+    get:
+      description: Retrieves details of a single commnet by its unique identifier.
+      parameters:
+      - description: Comment ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The details of the comment including ID, DateTime, Detail,
+            UserID, User, RestaurantID, and Restaurant.
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "400":
+          description: Invalid comment ID format.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Comment not found with the specified ID.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a Single Comment
+      tags:
+      - comments
+    put:
+      consumes:
+      - application/json
+      description: Updates the details of an existing comment identified by its ID.
+        This endpoint requires authentication.
+      parameters:
+      - description: Comment ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated comment Details
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The updated comment's details.
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "400":
+          description: Invalid input format for comment details or invalid comment
+            ID.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Comment not found with the specified ID.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a Comment
+      tags:
+      - comments
   /me:
     get:
       description: Retrieves the details of the currently authenticated user.
@@ -195,7 +382,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get my profile
       tags:
       - user
@@ -216,7 +403,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get All Reservations
       tags:
       - reservations
@@ -248,7 +435,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Create a New Reservation
       tags:
       - reservations
@@ -276,6 +463,8 @@ paths:
           description: Reservation not found with the specified ID.
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete a Reservation
       tags:
       - reservations
@@ -305,7 +494,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get a Single Reservation
       tags:
       - reservations
@@ -344,7 +533,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Update a Reservation
       tags:
       - reservations
@@ -365,7 +554,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get All Restaurants
       tags:
       - restaurants
@@ -396,7 +585,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Create a New Restaurant
       tags:
       - restaurants
@@ -424,7 +613,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Delete a Restaurant
       tags:
       - restaurants
@@ -454,7 +643,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get a Single Restaurant
       tags:
       - restaurants
@@ -493,10 +682,41 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Update a Restaurant
       tags:
       - restaurants
+  /restaurants/{restaurantID}/comments:
+    get:
+      description: Retrieves a list of comments associated with a specific restaurant.
+      parameters:
+      - description: Reataurant ID
+        in: path
+        name: restaurantId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: An array of comment objects for the restaurant.
+          schema:
+            items:
+              $ref: '#/definitions/models.Comment'
+            type: array
+        "400":
+          description: Invalid reataurant ID format.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Comments not found for the specified restaurant ID.
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Reataurant's Comments
+      tags:
+      - comments
   /users:
     get:
       description: Retrieves a list of all users in the system.
@@ -514,7 +734,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get All Users
       tags:
       - user
@@ -545,7 +765,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Create a New User
       tags:
       - user
@@ -573,7 +793,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Delete a User
       tags:
       - user
@@ -603,7 +823,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get a Single User
       tags:
       - user
@@ -640,7 +860,7 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Update a User
       tags:
       - user
@@ -671,8 +891,14 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponse'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get User's Reservations
       tags:
       - reservations
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

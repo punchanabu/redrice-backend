@@ -22,7 +22,7 @@ func InitializedCommentHandler(db *gorm.DB) {
 // @Description Retrieves a list of all comments in the system.
 // @Tags comments
 // @Produce json
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {array} models.Comment "An array of comment objects."
 // @Failure 500 {object} ErrorResponse "Internal server error while fetching comments."
 // @Router /comments [get]
@@ -40,7 +40,7 @@ func GetComments(c *gin.Context) {
 // @Tags comments
 // @Produce json
 // @Param id path int true "Comment ID" Format(int64)
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.Comment "The details of the comment including ID, DateTime, Detail, UserID, User, RestaurantID, and Restaurant."
 // @Failure 400 {object} ErrorResponse "Invalid comment ID format."
 // @Failure 404 {object} ErrorResponse "Comment not found with the specified ID."
@@ -70,7 +70,7 @@ func GetComment(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param commnet body models.Comment true "Your Comment"
-// @Security Bearer
+// @security BearerAuth
 // @Success 201 {object} models.Comment "The created comment's details, including its unique identifier."
 // @Failure 400 {object} ErrorResponse "Invalid input format for reservation details."
 // @Failure 500 {object} ErrorResponse "Internal server error while creating the reservation."
@@ -147,7 +147,7 @@ func CreateComment(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Comment ID" Format(int64)
 // @Param comment body models.Comment true "Updated comment Details"
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.Comment "The updated comment's details."
 // @Failure 400 {object} ErrorResponse "Invalid input format for comment details or invalid comment ID."
 // @Failure 404 {object} ErrorResponse "Comment not found with the specified ID."
@@ -204,6 +204,7 @@ func UpdateComment(c *gin.Context) {
 // @Description Removes a comment from the system. This endpoint requires authentication.
 // @Tags comments
 // @Produce json
+// @security BearerAuth
 // @Param id path int true "Comment ID" Format(int64)
 // @Success 204 "Comment successfully deleted, no content to return."
 // @Failure 400 {object} ErrorResponse "Invalid comment ID format."
@@ -284,7 +285,7 @@ func DeleteComment(c *gin.Context) {
 // @Tags comments
 // @Produce json
 // @Param restaurantId path int true "Reataurant ID"
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {array} models.Comment "An array of comment objects for the restaurant."
 // @Failure 400 {object} ErrorResponse "Invalid reataurant ID format."
 // @Failure 404 {object} ErrorResponse "Comments not found for the specified restaurant ID."

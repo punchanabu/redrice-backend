@@ -21,7 +21,7 @@ func InitializedRestaurantHandler(db *gorm.DB) {
 // @Tags restaurants
 // @Produce json
 // @Param id path int true "Restaurant ID" Format(int64)
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.Restaurant "The details of the restaurant including ID, name, location, and other relevant information."
 // @Failure 400 {object} ErrorResponse "Invalid restaurant ID format."
 // @Failure 404 {object} ErrorResponse "Restaurant not found with the specified ID."
@@ -49,7 +49,7 @@ func GetRestaurant(c *gin.Context) {
 // @Description Retrieves a list of all restaurants in the system.
 // @Tags restaurants
 // @Produce json
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {array} models.Restaurant "An array of restaurant objects."
 // @Failure 500 {object} ErrorResponse "Internal server error while fetching restaurants."
 // @Router /restaurants [get]
@@ -68,7 +68,7 @@ func GetRestaurants(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param restaurant body models.Restaurant true "Restaurant Registration Details"
-// @Security Bearer
+// @security BearerAuth
 // @Success 201 {object} models.Restaurant "The created restaurant's details, including its unique identifier."
 // @Failure 400 {object} ErrorResponse "Invalid input format for restaurant details."
 // @Failure 500 {object} ErrorResponse "Internal server error while creating the restaurant."
@@ -131,7 +131,7 @@ func CreateRestaurant(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Restaurant ID" Format(int64)
 // @Param restaurant body models.Restaurant true "Updated Restaurant Details"
-// @Security Bearer
+// @security BearerAuth
 // @Success 200 {object} models.Restaurant "The updated restaurant's details."
 // @Failure 400 {object} ErrorResponse "Invalid input format for restaurant details or invalid restaurant ID."
 // @Failure 404 {object} ErrorResponse "Restaurant not found with the specified ID."
@@ -226,7 +226,7 @@ func UpdateRestaurant(c *gin.Context) {
 // @Tags restaurants
 // @Produce json
 // @Param id path int true "Restaurant ID" Format(int64)
-// @Security Bearer
+// @security BearerAuth
 // @Success 204 "Restaurant successfully deleted, no content to return."
 // @Failure 400 {object} ErrorResponse "Invalid restaurant ID format."
 // @Failure 404 {object} ErrorResponse "Restaurant not found with the specified ID."
